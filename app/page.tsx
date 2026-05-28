@@ -1,4 +1,4 @@
-import VertexIcon from "@/components/ui/logo/Vertex";
+import VertexIcon from "@/components/logo/Vertex";
 import { MoveUpRight, ShieldCheck, Users, Zap, GitBranch, Share2, Cpu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -238,7 +238,7 @@ export default function Home() {
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">{"Developers"}</span>
             <Link href="/docs" className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5">{"Documentation"}</Link>
             <Link href="/changelog" className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5">{"Changelog"}</Link>
-            <Link href="https://github.com" target="_blank" rel="noreferrer" className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5">{"GitHub"}</Link>
+            <Link href="https://github.com/DevTechMike-Coder/KanbanTool" target="_blank" rel="noreferrer" className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5">{"GitHub"}</Link>
           </div>
 
           {/* Corporate / Compliance Links */}
