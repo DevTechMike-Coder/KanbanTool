@@ -1,27 +1,42 @@
-import VertexIcon from "@/components/logo/Vertex";
-import { MoveUpRight, ShieldCheck, Users, Zap, GitBranch, Share2, Cpu } from "lucide-react";
+import VertexIcon from "@/components/iconComp/Vertex";
+import {
+  MoveUpRight,
+  ShieldCheck,
+  Users,
+  Zap,
+  GitBranch,
+  Share2,
+  Cpu,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 const t = {
   brandName: "Vertex Canvas",
   signIn: "SIGN IN",
-  heroTitle: "The collaborative canvas where your developer workflows intersect.",
-  heroDescription: "Vertex Canvas is a high-performance, developer-centric project management platform designed for teams that require absolute precision, real-time synchronization, and ironclad security. Moving away from cluttered, slow-moving legacy tools, Vertex treats your workflow as a dynamic network of interconnected data points.",
+  heroTitle:
+    "The collaborative canvas where your developer workflows intersect.",
+  heroDescription:
+    "Vertex Canvas is a high-performance, developer-centric project management platform designed for teams that require absolute precision, real-time synchronization, and ironclad security. Moving away from cluttered, slow-moving legacy tools, Vertex treats your workflow as a dynamic network of interconnected data points.",
   getStarted: "Get Started",
   whyChooseTitle: "Why Choose Vertex Canvas?",
   choose: "Choose",
   vertex: "Vertex",
-  whyChooseText: "because a vertex is the exact point where multiple lines intersect in a network. In product development, your team, your code, your security pipelines, and your tasks all intersect at one focal point.",
-  whyChooseTextEnd: "represents that ultimate hub where everything connects seamlessly.",
+  whyChooseText:
+    "because a vertex is the exact point where multiple lines intersect in a network. In product development, your team, your code, your security pipelines, and your tasks all intersect at one focal point.",
+  whyChooseTextEnd:
+    "represents that ultimate hub where everything connects seamlessly.",
   featuresTitle: "Experience the Future of Project Management",
   securityTitle: "Ironclad Security",
-  securityDesc: "Data protected with enterprise-grade encryption and compliance measures.",
+  securityDesc:
+    "Data protected with enterprise-grade encryption and compliance measures.",
   collabTitle: "Real-Time Collaboration",
-  collabDesc: "Instant updates and seamless communication for teams that need to stay in sync, no matter where they are.",
+  collabDesc:
+    "Instant updates and seamless communication for teams that need to stay in sync, no matter where they are.",
   perfTitle: "Blazing Fast Performance",
-  perfDesc: "Engineered with optimization cores and persistent WebSockets for sub-50ms state updates and zero UI lag.",
-  kanbanPageAlt: "Kanban Page"
+  perfDesc:
+    "Engineered with optimization cores and persistent WebSockets for sub-50ms state updates and zero UI lag.",
+  kanbanPageAlt: "Kanban Page",
 };
 
 export default function Home() {
@@ -42,9 +57,9 @@ export default function Home() {
           <nav className="flex items-center gap-6">
             <Link
               href="/signIn"
-              className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
+              className="vertex-nav-link flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
             >
-              {t.signIn}{" "}<MoveUpRight className="w-4 h-4" />
+              <span>{t.signIn}</span> <MoveUpRight className="w-4 h-4" />
             </Link>
           </nav>
         </div>
@@ -57,14 +72,12 @@ export default function Home() {
             {t.heroTitle}
           </h1>
 
-          <p className="text-lg text-gray-600">
-            {t.heroDescription}
-          </p>
+          <p className="text-lg text-gray-600">{t.heroDescription}</p>
         </div>
         <div>
           <Link
             href="/home"
-            className="flex items-center gap-1 text-xl border border-gray-300 rounded-md px-4 py-2"
+            className="flex items-center gap-1 text-xl border border-gray-300 rounded-md px-4 py-2 shadow-sm transition-all duration-300 ease-out motion-safe:animate-[vertex-cta-float_4s_ease-in-out_infinite] hover:-translate-y-0.5 hover:scale-[1.02] hover:border-indigo-400 hover:text-indigo-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2"
           >
             {t.getStarted}
           </Link>
@@ -72,7 +85,10 @@ export default function Home() {
       </section>
 
       {/* Why Choose Vertex Canvas? */}
-      <section className="border-t border-gray-200 dark:border-zinc-800/80 py-16 px-4 max-w-7xl mx-auto" id="canvas">
+      <section
+        className="border-t border-gray-200 dark:border-zinc-800/80 py-16 px-4 max-w-7xl mx-auto"
+        id="canvas"
+      >
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-zinc-100">
             {t.whyChooseTitle}
@@ -84,7 +100,9 @@ export default function Home() {
           <div className="lg:col-span-5 flex flex-col gap-8">
             <div>
               <p className="text-lg font-medium text-gray-700 dark:text-zinc-300 leading-relaxed">
-                {"A vertex is the exact point where multiple lines intersect in a network. In product development, your team, your code, your pipelines, and your tasks all intersect at one focal point."}
+                {
+                  "A vertex is the exact point where multiple lines intersect in a network. In product development, your team, your code, your pipelines, and your tasks all intersect at one focal point."
+                }
               </p>
             </div>
 
@@ -94,8 +112,14 @@ export default function Home() {
                   <GitBranch className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-base font-semibold text-gray-900 dark:text-zinc-100">{"Code & Tasks Intersect"}</h4>
-                  <p className="text-sm text-gray-650 dark:text-zinc-400 mt-1">{"Map issues, sprints, and code commits into a unified visual graph."}</p>
+                  <h4 className="text-base font-semibold text-gray-900 dark:text-zinc-100">
+                    {"Code & Tasks Intersect"}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-zinc-400 mt-1">
+                    {
+                      "Map issues, sprints, and code commits into a unified visual graph."
+                    }
+                  </p>
                 </div>
               </div>
 
@@ -104,8 +128,14 @@ export default function Home() {
                   <Share2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-base font-semibold text-gray-900 dark:text-zinc-100">{"Teams Intersect"}</h4>
-                  <p className="text-sm text-gray-650 dark:text-zinc-400 mt-1">{"Work concurrently with real-time multi-player updates and zero latency."}</p>
+                  <h4 className="text-base font-semibold text-gray-900 dark:text-zinc-100">
+                    {"Teams Intersect"}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-zinc-400 mt-1">
+                    {
+                      "Work concurrently with real-time multi-player updates and zero latency."
+                    }
+                  </p>
                 </div>
               </div>
 
@@ -114,8 +144,14 @@ export default function Home() {
                   <Cpu className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-base font-semibold text-gray-900 dark:text-zinc-100">{"Performance & Data Intersect"}</h4>
-                  <p className="text-sm text-gray-650 dark:text-zinc-400 mt-1">{"Watch state updates synchronize seamlessly with zero interface lag."}</p>
+                  <h4 className="text-base font-semibold text-gray-900 dark:text-zinc-100">
+                    {"Performance & Data Intersect"}
+                  </h4>
+                  <p className="text-sm text-gray-650 dark:text-zinc-400 mt-1">
+                    {
+                      "Watch state updates synchronize seamlessly with zero interface lag."
+                    }
+                  </p>
                 </div>
               </div>
             </div>
@@ -143,7 +179,10 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="border-t border-gray-200 dark:border-zinc-800/80 py-16 px-4 max-w-7xl mx-auto" id="features">
+      <section
+        className="border-t border-gray-200 dark:border-zinc-800/80 py-16 px-4 max-w-7xl mx-auto"
+        id="features"
+      >
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-zinc-100">
             {t.featuresTitle}
@@ -207,70 +246,132 @@ export default function Home() {
         </div>
       </section>
 
-
       <footer className="w-full border-t border-gray-200 dark:border-zinc-800 backdrop-blur-sm mt-auto transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-gray-100 dark:border-zinc-800/50">
-          
-          {/* Brand Column */}
-          <div className="flex flex-col gap-3 md:col-span-1">
-            <div className="flex items-center gap-2">
-        <VertexIcon />
-              <span className="text-lg font-bold tracking-wide text-gray-900 dark:text-zinc-100">
-                {"Vertex Canvas"}
-              </span>
+        <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-gray-100 dark:border-zinc-800/50">
+            {/* Brand Column */}
+            <div className="flex flex-col gap-3 md:col-span-1">
+              <div className="flex items-center gap-2">
+                <VertexIcon />
+                <span className="text-lg font-bold tracking-wide text-gray-900 dark:text-zinc-100">
+                  {"Vertex Canvas"}
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-zinc-400 max-w-xs leading-relaxed">
+                {
+                  "The high-performance workspace network mapping your engineering workflows from architecture to deployment."
+                }
+              </p>
             </div>
-            <p className="text-xs text-gray-500 dark:text-zinc-400 max-w-xs leading-relaxed">
-              {"The high-performance workspace network mapping your engineering workflows from architecture to deployment."}
-            </p>
+
+            {/* Product Links */}
+            <div className="flex flex-col gap-3">
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">
+                {"Product"}
+              </span>
+              <Link
+                href="#features"
+                className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5"
+              >
+                {"Features"}
+              </Link>
+              <Link
+                href="#canvas"
+                className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5"
+              >
+                {"The Canvas"}
+              </Link>
+              <Link
+                href="/security"
+                className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5"
+              >
+                {"Security Vault"}
+              </Link>
+            </div>
+
+            {/* Developers Links */}
+            <div className="flex flex-col gap-3">
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">
+                {"Developers"}
+              </span>
+              <Link
+                href="/docs"
+                className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5"
+              >
+                {"Documentation"}
+              </Link>
+              <Link
+                href="/changelog"
+                className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5"
+              >
+                {"Changelog"}
+              </Link>
+              <Link
+                href="https://github.com/DevTechMike-Coder/KanbanTool"
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5"
+              >
+                {"GitHub"}
+              </Link>
+            </div>
+
+            {/* Corporate / Compliance Links */}
+            <div className="flex flex-col gap-3">
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">
+                {"Legal"}
+              </span>
+              <Link
+                href="/privacy"
+                className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5"
+              >
+                {"Privacy Policy"}
+              </Link>
+              <Link
+                href="/terms"
+                className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5"
+              >
+                {"Terms of Service"}
+              </Link>
+            </div>
           </div>
 
-          {/* Product Links */}
-          <div className="flex flex-col gap-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">{"Product"}</span>
-            <Link href="#features" className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5">{"Features"}</Link>
-            <Link href="#canvas" className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5">{"The Canvas"}</Link>
-            <Link href="/security" className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5">{"Security Vault"}</Link>
+          {/* Bottom Copyright Section */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 text-xs text-gray-500 dark:text-zinc-400">
+            <div>{"© 2026 Vertex Canvas Inc. All rights reserved."}</div>
+            <div className="flex gap-4">
+              <Link
+                href="/"
+                className="p-2 text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                aria-label="Twitter"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </Link>
+              <Link
+                href="/"
+                className="p-2 text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                aria-label="Discord"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.873-.894.077.077 0 0 1-.008-.128c.126-.093.252-.19.372-.287a.075.075 0 0 1 .077-.011c3.92 1.793 8.18 1.793 12.061 0a.073.073 0 0 1 .078.009c.12.099.246.197.373.289a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.156-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.156 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.156-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.156 2.418z" />
+                </svg>
+              </Link>
+            </div>
           </div>
-
-          {/* Developers Links */}
-          <div className="flex flex-col gap-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">{"Developers"}</span>
-            <Link href="/docs" className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5">{"Documentation"}</Link>
-            <Link href="/changelog" className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5">{"Changelog"}</Link>
-            <Link href="https://github.com/DevTechMike-Coder/KanbanTool" target="_blank" rel="noreferrer" className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5">{"GitHub"}</Link>
-          </div>
-
-          {/* Corporate / Compliance Links */}
-          <div className="flex flex-col gap-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">{"Legal"}</span>
-            <Link href="/privacy" className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5">{"Privacy Policy"}</Link>
-            <Link href="/terms" className="text-sm text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 transition-all duration-200 hover:translate-x-0.5">{"Terms of Service"}</Link>
-          </div>
-
         </div>
-
-        {/* Bottom Copyright Section */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 text-xs text-gray-500 dark:text-zinc-400">
-          <div>
-            {"© 2026 Vertex Canvas Inc. All rights reserved."}
-          </div>
-          <div className="flex gap-4">
-            <a href="#" className="p-2 text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors" aria-label="Twitter">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-              </svg>
-            </a>
-            <a href="#" className="p-2 text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors" aria-label="Discord">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.873-.894.077.077 0 0 1-.008-.128c.126-.093.252-.19.372-.287a.075.075 0 0 1 .077-.011c3.92 1.793 8.18 1.793 12.061 0a.073.073 0 0 1 .078.009c.12.099.246.197.373.289a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.156-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.156 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.156-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.156 2.418z" />
-              </svg>
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
+      </footer>
     </main>
   );
 }
-
