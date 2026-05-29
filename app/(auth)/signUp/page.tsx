@@ -1,8 +1,9 @@
-const t = {
-  title: "Sign Up Page"
-};
+import SignUpForm from "@/components/auth/SignUpForm";
 
 export default function SignUpPage() {
-  return <p>{t.title}</p>;
+  return (
+    <main>
+      <SignUpForm />
+    </main>
+  );
 }
-
