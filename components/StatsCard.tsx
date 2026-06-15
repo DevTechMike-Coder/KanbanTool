@@ -1,35 +1,45 @@
 import { Layers, CheckCircle2, Users2, Activity } from "lucide-react";
 
-export default function StatsCard() {
+export default function StatsCard({
+  activeProjects = 0,
+  openTasks = 0,
+  completedTasks = 0,
+  teamMembers = 0,
+}: {
+  activeProjects?: number;
+  openTasks?: number;
+  completedTasks?: number;
+  teamMembers?: number;
+}) {
   const stats = [
     {
       name: "Active Projects",
-      value: "4",
-      change: "2 this week",
+      value: activeProjects.toString(),
+      change: "Live",
       changeType: "positive",
       icon: Layers,
       iconColor: "text-blue-600 bg-blue-50 border-blue-100",
     },
     {
       name: "Open Tasks",
-      value: "18",
-      change: "5 due soon",
+      value: openTasks.toString(),
+      change: "Assigned",
       changeType: "neutral",
       icon: Activity,
       iconColor: "text-amber-600 bg-amber-50 border-amber-100",
     },
     {
-      name: "Completed This Week",
-      value: "12",
-      change: "+18%",
+      name: "Completed Tasks",
+      value: completedTasks.toString(),
+      change: "Total Done",
       changeType: "positive",
       icon: CheckCircle2,
       iconColor: "text-emerald-600 bg-emerald-50 border-emerald-100",
     },
     {
       name: "Team Members",
-      value: "6",
-      change: "3 online now",
+      value: teamMembers.toString(),
+      change: "Registered",
       changeType: "neutral",
       icon: Users2,
       iconColor: "text-indigo-600 bg-indigo-50 border-indigo-100",

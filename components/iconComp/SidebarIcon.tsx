@@ -8,7 +8,6 @@ interface SidebarIconProps extends React.ComponentPropsWithoutRef<"svg"> {
 export const SidebarIcon: React.FC<SidebarIconProps> = ({
   size = 24,
   className = "",
-  title = "Sidebar",
   ...props
 }) => {
   return (
@@ -19,11 +18,9 @@ export const SidebarIcon: React.FC<SidebarIconProps> = ({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
-      aria-label={title}
       className={`shrink-0 text-zinc-700 transition-colors duration-200 hover:text-indigo-600 ${className}`}
       {...props}
     >
-      <title>{title}</title>
       <rect
         x="3.5"
         y="3.5"
