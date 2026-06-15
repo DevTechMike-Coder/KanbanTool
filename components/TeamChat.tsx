@@ -193,11 +193,11 @@ export default function TeamChat({
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)] md:h-[calc(100vh-2px)] w-full font-sans bg-white">
       {/* 1. Header Section */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold tracking-tight text-zinc-900 flex items-center gap-2">
-              <Users className="w-5 h-5 text-zinc-500" />
+      <header className="flex flex-col gap-3 px-4 py-4 border-b border-zinc-100 sm:px-6 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-lg font-bold tracking-tight text-zinc-900 flex items-center gap-2 sm:text-xl">
+              <Users className="w-5 h-5 text-zinc-500 shrink-0" />
               <span>Team Collaboration</span>
             </h1>
             <TeamSwitcher
@@ -205,12 +205,12 @@ export default function TeamChat({
               teams={userTeams}
             />
           </div>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
             Real-time chat and roster directory for workspace developers in {teamName}.
           </p>
         </div>
-        
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             type="button"
             onClick={() => router.push("/teams?new=true")}
