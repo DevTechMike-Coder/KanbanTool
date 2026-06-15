@@ -1,16 +1,9 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Fira_Code } from "next/font/google";
 import "./globals.css";
-
-const jakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
-  subsets: ["latin"],
-});
-
-const firaCode = Fira_Code({
-  variable: "--font-mono-custom",
-  subsets: ["latin"],
-});
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ToastProvider } from "@/components/ui/toast";
+import { SidebarProvider } from "@/lib/contexts/SidebarContext";
+import { AuthPromptProvider } from "@/lib/contexts/AuthPromptContext";
 
 export const metadata: Metadata = {
   title: "Vertex Canvas",
@@ -23,13 +16,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${jakartaSans.variable} ${firaCode.variable} h-full antialiased`}
-    >
+    <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col font-sans bg-white text-zinc-900">
-        {children}
+        <ToastProvider>
+          <TooltipProvider>
+            <AuthPromptProvider>
+              <SidebarProvider>{children}</SidebarProvider>
+            </AuthPromptProvider>
+          </TooltipProvider>
+        </ToastProvider>
       </body>
     </html>
   );
 }
+
