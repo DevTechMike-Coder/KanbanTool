@@ -11,10 +11,6 @@ interface PageProps {
   params: Promise<{ projectId: string }>;
 }
 
-export async function generateStaticParams() {
-  return [{ projectId: "vertex-core" }];
-}
-
 export default async function ProjectPage({ params }: PageProps) {
   const resolvedParams = await params;
   const projectId = resolvedParams.projectId;
