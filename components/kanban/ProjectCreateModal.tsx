@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, AlertTriangle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -121,7 +121,7 @@ export default function ProjectCreateModal({
             />
           </div>
 
-          {userTeams.length > 0 && (
+          {userTeams.length > 0 ? (
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="modal-project-team"
@@ -148,6 +148,20 @@ export default function ProjectCreateModal({
               <p className="text-[10px] text-zinc-400">
                 Projects belong to a workspace — only members of that
                 workspace can see it and its tasks.
+              </p>
+            </div>
+          ) : (
+            <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+              <p>
+                You need to create or join a workspace before you can create a project.{" "}
+                <a
+                  href="/teams"
+                  onClick={onClose}
+                  className="font-semibold underline hover:text-amber-900"
+                >
+                  Set up a workspace
+                </a>
               </p>
             </div>
           )}
