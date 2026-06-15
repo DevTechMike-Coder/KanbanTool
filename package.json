@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "test:signup": "tsx script/test-signup.ts",
     "test:signin": "tsx script/test-signin.ts",
     "test:tasks": "tsx script/test-tasks.ts",
-    "test": "npm run test:signup && npm run test:signin && npm run test:tasks"
+    "test": "npm run test:signup && npm run test:signin && npm run test:tasks",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
