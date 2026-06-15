@@ -1,3 +1,8 @@
+"use client";
+
+import { useActionState, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { signin } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,10 +15,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Separator } from "../ui/separator";
 import GoogleIcon from "../iconComp/GoogleIcon";
-import DiscordIcon from "../iconComp/DiscordIcon";
+import GithubIcon from "../iconComp/GithubIcon";
+
+const initialSignInState = {
+  status: "idle" as const,
+};
 
 const t = {
   cardTitle: "Sign in to your account",
@@ -25,13 +34,39 @@ const t = {
   forgotPassword: "Forgot your password?",
   loginButton: "Sign In",
   googleButton: "Google",
-  discordButton: "Discord",
+  githubButton: "Github",
   cardFooter: "Don't have an account?",
   cardFooterLink: "SignUp",
   backToHome: "Back to home",
 };
 
 export default function SignInForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo =
+    searchParams.get("next") || searchParams.get("redirect") || "/home";
+  const [state, formAction, pending] = useActionState(signin, initialSignInState);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const oauthError = searchParams.get("error");
+
+  useEffect(() => {
+    if (state.status === "success") {
+      router.push(redirectTo);
+      router.refresh();
+    }
+  }, [state.status, router, redirectTo]);
+
+  function handleGoogleSignIn() {
+    const params = new URLSearchParams({ next: redirectTo });
+    window.location.href = `/api/auth/google?${params.toString()}`;
+  }
+
+  function handleGithubSignIn() {
+    const params = new URLSearchParams({ next: redirectTo });
+    window.location.href = `/api/auth/github?${params.toString()}`;
+  }
+
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-muted/30 px-4">
       <Button
@@ -50,7 +85,7 @@ export default function SignInForm() {
           <CardDescription>{t.cardDescription}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form action={formAction}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">{t.emailLabel}</Label>
@@ -58,9 +93,19 @@ export default function SignInForm() {
                   id="email"
                   name="email"
                   type="email"
+                  autoComplete="email"
                   placeholder={t.emailPlaceholder}
+                  aria-invalid={Boolean(state.errors?.email)}
+                  aria-describedby={
+                    state.errors?.email ? "email-error" : undefined
+                  }
                   required
                 />
+                {state.errors?.email && (
+                  <p id="email-error" className="text-xs text-red-600">
+                    {state.errors.email}
+                  </p>
+                )}
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
@@ -72,31 +117,86 @@ export default function SignInForm() {
                     {t.forgotPassword}
                   </Link>
                 </div>
-                <Input
-                  id="password"
-                  name="password"
-                  placeholder={t.passwordPlaceholder}
-                  type="password"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    placeholder={t.passwordPlaceholder}
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    minLength={8}
+                    className="pr-10"
+                    aria-invalid={Boolean(state.errors?.password)}
+                    aria-describedby={
+                      state.errors?.password ? "password-error" : undefined
+                    }
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50 focus:outline-none cursor-pointer"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                {state.errors?.password && (
+                  <p id="password-error" className="text-xs text-red-600">
+                    {state.errors.password}
+                  </p>
+                )}
               </div>
             </div>
+            {state.message && (
+              <p
+                className={`mt-4 text-sm ${
+                  state.status === "success" ? "text-emerald-600" : "text-red-600"
+                }`}
+              >
+                {state.message}
+              </p>
+            )}
             <div>
-              <Button className="w-full mt-3 uppercase tracking-wider">
-                {t.loginButton}
+              <Button
+                type="submit"
+                disabled={pending}
+                className="w-full mt-3 uppercase tracking-wider"
+              >
+                {pending ? "Signing in..." : t.loginButton}
               </Button>
             </div>
 
             <Separator className="my-6" />
 
-            <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-4">
-              <Button type="button" variant="outline" className="w-full">
-                <GoogleIcon className="mr-2" />
+            {oauthError && (
+              <p className="mb-4 text-sm text-red-600 text-center">
+                {oauthError}
+              </p>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleGoogleSignIn}
+              >
+                <GoogleIcon className="mr-2" size={18} />
                 {t.googleButton}
               </Button>
-              <Button type="button" variant="outline" className="w-full">
-                <DiscordIcon className="mr-2" />
-                {t.discordButton}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleGithubSignIn}
+              >
+                <GithubIcon className="mr-2" size={18} />
+                {t.githubButton}
               </Button>
             </div>
           </form>

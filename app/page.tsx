@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { getSessionUserId } from "@/lib/auth/session";
+import { prisma } from "@/lib/prisma";
 
 const t = {
   brandName: "Vertex Canvas",
@@ -39,7 +41,26 @@ const t = {
   kanbanPageAlt: "Kanban Page",
 };
 
-export default function Home() {
+export default async function Home() {
+  const userId = await getSessionUserId();
+  let user = null;
+
+  if (userId) {
+    user = await prisma.profile.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+  }
+
+  const displayName = user?.name || user?.email?.split("@")[0] || "User";
+  const initials = displayName
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "US";
+
   return (
     <main className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       <header className="sticky top-0 z-1 bg-white/70 dark:bg-black/70 backdrop-blur-md border-b border-gray-200/50 dark:border-white/10">
@@ -55,12 +76,31 @@ export default function Home() {
           </Link>
 
           <nav className="flex items-center gap-6">
-            <Link
-              href="/signIn"
-              className="vertex-nav-link flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
-            >
-              <span>{t.signIn}</span> <MoveUpRight className="w-4 h-4" />
-            </Link>
+            {user ? (
+              <Link href="/home" className="flex items-center gap-2 group">
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={displayName}
+                    className="h-8 w-8 rounded-full border border-zinc-200 object-cover transition-all group-hover:border-zinc-950"
+                  />
+                ) : (
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-950 text-[10px] font-semibold text-white border border-zinc-200 transition-all group-hover:bg-zinc-800">
+                    {initials}
+                  </div>
+                )}
+                <span className="text-sm font-medium text-zinc-605 group-hover:text-zinc-950 transition-colors hidden sm:inline">
+                  {displayName}
+                </span>
+              </Link>
+            ) : (
+              <Link
+                href="/signIn"
+                className="vertex-nav-link flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
+              >
+                <span>{t.signIn}</span> <MoveUpRight className="w-4 h-4" />
+              </Link>
+            )}
           </nav>
         </div>
       </header>
