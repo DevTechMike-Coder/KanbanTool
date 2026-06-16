@@ -103,7 +103,7 @@ export default function TeamChat({
       } catch {
         // silently ignore polling errors
       }
-    }, 500);
+    }, 90);
 
     return () => clearInterval(poll);
   }, [teamId]);
