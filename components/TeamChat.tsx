@@ -74,16 +74,17 @@ export default function TeamChat({
   const [showMembers, setShowMembers] = useState(false);
 
   // Partition tasks
-  const activeTasks = teamTasks.filter((t) => ["in-progress", "review"].includes(t.column?.toLowerCase()));
+  const activeTasks = teamTasks.filter((t) =>
+    ["in-progress", "review"].includes(t.column?.toLowerCase())
+  );
   const stuckTasks = teamTasks.filter(
     (t) =>
       ["critical", "high"].includes(t.priority?.toLowerCase()) &&
       t.column?.toLowerCase() !== "completed"
   );
-  
+
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom of chat
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -117,7 +118,6 @@ export default function TeamChat({
     setInputText("");
     setIsSending(true);
 
-    // Optimistic message update
     const optimisticMessage: Message = {
       id: `optimistic-${Date.now()}`,
       text: currentText,
@@ -135,21 +135,18 @@ export default function TeamChat({
 
     try {
       const realMessage = await sendMessage(teamId, currentText);
-      // Replace optimistic message with server-persisted message
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === optimisticMessage.id
-            ? {
-                ...realMessage,
-                createdAt: new Date(realMessage.createdAt),
-              }
+            ? { ...realMessage, createdAt: new Date(realMessage.createdAt) }
             : msg
         )
       );
     } catch (err) {
       console.error("Failed to send message:", err);
-      // Remove the optimistic message on failure
-      setMessages((prev) => prev.filter((msg) => msg.id !== optimisticMessage.id));
+      setMessages((prev) =>
+        prev.filter((msg) => msg.id !== optimisticMessage.id)
+      );
       toast({
         title: "Failed to Send Message",
         message: "Your message could not be delivered.",
@@ -162,7 +159,7 @@ export default function TeamChat({
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)] md:h-[calc(100vh-2px)] w-full font-sans bg-white">
-      {/* 1. Header Section */}
+      {/* Header */}
       <header className="flex flex-col gap-3 px-4 py-4 border-b border-zinc-100 sm:px-6 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -170,10 +167,7 @@ export default function TeamChat({
               <Users className="w-5 h-5 text-zinc-500 shrink-0" />
               <span>Team Collaboration</span>
             </h1>
-            <TeamSwitcher
-              currentTeamId={teamId}
-              teams={userTeams}
-            />
+            <TeamSwitcher currentTeamId={teamId} teams={userTeams} />
           </div>
           <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
             Real-time chat and roster directory for workspace developers in {teamName}.
@@ -208,11 +202,10 @@ export default function TeamChat({
         </div>
       </header>
 
-      {/* 2. Main Split Pane */}
+      {/* Main Split Pane */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Side: Directory Roster */}
-        {/* Mobile members toggle button */}
-        <div className="md:hidden border-b border-zinc-100 px-4 py-2">
+        {/* Mobile members toggle */}
+        <div className="md:hidden border-b border-zinc-100 px-4 py-2 w-full absolute z-10 bg-white">
           <button
             type="button"
             onClick={() => setShowMembers((v) => !v)}
@@ -220,25 +213,33 @@ export default function TeamChat({
           >
             <span className="flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5" />
-              {showMembers ? "Hide Members" : `Show Members (${allProfiles.length})`}
+              {showMembers
+                ? "Hide Members"
+                : `Show Members (${allProfiles.length})`}
             </span>
-            {showMembers ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            {showMembers ? (
+              <ChevronUp className="w-3.5 h-3.5" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5" />
+            )}
           </button>
         </div>
 
-        <aside className="w-80 border-r border-zinc-100 bg-zinc-50/30 flex flex-col p-4 overflow-y-auto hidden md:flex">
+        {/* Left Sidebar: Directory Roster (desktop) */}
+        <aside className="w-80 border-r border-zinc-100 bg-zinc-50/30 flex-col p-4 overflow-y-auto hidden md:flex">
           <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3 px-1">
             Workspace Directory ({allProfiles.length})
           </h2>
           <div className="flex flex-col gap-1.5">
             {allProfiles.map((member) => {
               const memberName = member.name || member.email.split("@")[0];
-              const memberInitials = memberName
-                .split(/\s+/)
-                .map((part) => part[0])
-                .join("")
-                .slice(0, 2)
-                .toUpperCase() || "UN";
+              const memberInitials =
+                memberName
+                  .split(/\s+/)
+                  .map((part) => part[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase() || "UN";
 
               return (
                 <div
@@ -278,80 +279,114 @@ export default function TeamChat({
           </div>
         </aside>
 
-        {/* Right Side: Chat Streams */}
-        {/* Mobile members panel - collapsible */}
-        {showMembers && (
-          <div className="md:hidden border-b border-zinc-100 bg-zinc-50/30 px-4 py-3 flex flex-col gap-1.5 max-h-48 overflow-y-auto">
-            {allProfiles.map((member) => {
-              const memberName = member.name || member.email.split("@")[0];
-              const memberInitials = memberName
-                .split(" ")
-                .map((n: string) => n[0])
-                .join("")
-                .toUpperCase()
-                .slice(0, 2);
-              return (
-                <div key={member.id} className="flex items-center gap-2 py-1">
-                  <div className="relative shrink-0">
-                    <div className="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center text-[10px] font-bold text-zinc-600 overflow-hidden">
-                      {member.avatarUrl ? (
-                        <img src={member.avatarUrl} alt={memberName} className="w-full h-full object-cover" />
-                      ) : (
-                        memberInitials
-                      )}
-                    </div>
-                    <span className="absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full border border-white bg-emerald-500" />
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-medium text-zinc-800 truncate">{memberName}</span>
-                    <span className="text-[10px] text-zinc-400 truncate">{member.email}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
+        {/* Center: Chat */}
         <main className="flex-1 flex flex-col bg-white overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
+          {/* Mobile members panel (collapsible) */}
+          {showMembers && (
+            <div className="md:hidden border-b border-zinc-100 bg-zinc-50/30 px-4 py-3 flex flex-col gap-1.5 max-h-48 overflow-y-auto mt-9">
+              {allProfiles.map((member) => {
+                const memberName = member.name || member.email.split("@")[0];
+                const memberInitials = memberName
+                  .split(" ")
+                  .map((n: string) => n[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2);
+                return (
+                  <div key={member.id} className="flex items-center gap-2 py-1">
+                    <div className="relative shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center text-[10px] font-bold text-zinc-600 overflow-hidden">
+                        {member.avatarUrl ? (
+                          <img
+                            src={member.avatarUrl}
+                            alt={memberName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          memberInitials
+                        )}
+                      </div>
+                      <span className="absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full border border-white bg-emerald-500" />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs font-medium text-zinc-800 truncate">
+                        {memberName}
+                      </span>
+                      <span className="text-[10px] text-zinc-400 truncate">
+                        {member.email}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 flex flex-col gap-3">
             {messages.map((msg) => {
-              const senderName = msg.sender.name || msg.sender.email.split("@")[0];
-              const senderInitials = senderName
-                .split(/\s+/)
-                .map((p) => p[0])
-                .join("")
-                .slice(0, 2)
-                .toUpperCase() || "US";
+              const isOwn = msg.sender.id === currentUser?.id;
+              const senderName =
+                msg.sender.name || msg.sender.email.split("@")[0];
+              const senderInitials =
+                senderName
+                  .split(/\s+/)
+                  .map((p) => p[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase() || "US";
 
               const timeString = msg.createdAt.toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
               });
 
-              return (
-                <div key={msg.id} className="flex gap-4 items-start max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-200">
-                  {msg.sender.avatarUrl ? (
-                    <img
-                      src={msg.sender.avatarUrl}
-                      alt={senderName}
-                      className="w-8 h-8 rounded-full object-cover border border-zinc-200 shrink-0"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-zinc-950 text-white flex items-center justify-center text-xs font-bold shrink-0 border border-zinc-200">
-                      {senderInitials}
-                    </div>
-                  )}
+              const Avatar = () =>
+                msg.sender.avatarUrl ? (
+                  <img
+                    src={msg.sender.avatarUrl}
+                    alt={senderName}
+                    className="w-8 h-8 rounded-full object-cover border border-zinc-200 shrink-0"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-zinc-950 text-white flex items-center justify-center text-xs font-bold shrink-0 border border-zinc-200">
+                    {senderInitials}
+                  </div>
+                );
 
-                  <div className="flex flex-col">
-                    <div className="flex items-baseline gap-2">
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex w-full items-end gap-2.5 animate-in fade-in slide-in-from-bottom-2 duration-200 ${
+                    isOwn ? "flex-row-reverse" : "flex-row"
+                  }`}
+                >
+                  <Avatar />
+
+                  <div
+                    className={`flex flex-col max-w-[75%] ${
+                      isOwn ? "items-end" : "items-start"
+                    }`}
+                  >
+                    <div
+                      className={`flex items-baseline gap-1.5 mb-1 ${
+                        isOwn ? "flex-row-reverse" : "flex-row"
+                      }`}
+                    >
                       <span className="text-xs font-semibold text-zinc-900">
-                        {senderName}
+                        {isOwn ? "You" : senderName}
                       </span>
                       <span className="text-[9px] font-mono text-zinc-400">
                         {timeString}
                       </span>
                     </div>
-                    <p className="text-sm text-zinc-650 mt-1 leading-relaxed bg-zinc-55/80 rounded-r-xl rounded-bl-xl p-3 border border-zinc-100/80 bg-zinc-50 shadow-xs">
+                    <p
+                      className={`text-sm leading-relaxed px-3.5 py-2.5 ${
+                        isOwn
+                          ? "bg-zinc-950 text-white rounded-2xl rounded-br-sm"
+                          : "bg-zinc-100 text-zinc-800 rounded-2xl rounded-bl-sm border border-zinc-200"
+                      }`}
+                    >
                       {msg.text}
                     </p>
                   </div>
@@ -361,10 +396,13 @@ export default function TeamChat({
             <div ref={chatEndRef} />
           </div>
 
-          {/* Form Input */}
+          {/* Input */}
           <div className="p-4 border-t border-zinc-100 bg-white">
             {currentUser ? (
-              <form onSubmit={handleSend} className="relative flex items-center w-full max-w-4xl mx-auto">
+              <form
+                onSubmit={handleSend}
+                className="relative flex items-center w-full max-w-4xl mx-auto"
+              >
                 <input
                   type="text"
                   value={inputText}
@@ -388,14 +426,13 @@ export default function TeamChat({
           </div>
         </main>
 
-        {/* Right Side: Active & Blocked Task Summary Pane */}
-        <aside className="w-80 border-l border-zinc-100 bg-zinc-50/30 flex flex-col p-4 overflow-y-auto hidden lg:flex">
+        {/* Right Sidebar: Task Activity (desktop) */}
+        <aside className="w-80 border-l border-zinc-100 bg-zinc-50/30 flex-col p-4 overflow-y-auto hidden lg:flex">
           <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-4 px-1">
             Workspace Task Activity
           </h2>
 
           <div className="space-y-6">
-            {/* Active Tasks Group */}
             <div>
               <h3 className="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2 px-1 flex items-center justify-between">
                 <span>Active Work ({activeTasks.length})</span>
@@ -407,14 +444,25 @@ export default function TeamChat({
               ) : (
                 <div className="flex flex-col gap-2">
                   {activeTasks.map((task) => (
-                    <div key={task.id} className="p-3 bg-white border border-zinc-150 rounded-lg shadow-2xs hover:border-zinc-350 transition-all">
+                    <div
+                      key={task.id}
+                      className="p-3 bg-white border border-zinc-150 rounded-lg shadow-2xs hover:border-zinc-350 transition-all"
+                    >
                       <div className="flex justify-between items-start mb-1 gap-2">
-                        <span className="font-mono text-[9px] font-bold text-zinc-400">{task.id}</span>
-                        <span className="rounded bg-blue-50 text-blue-700 px-1 py-0.5 text-[8px] font-bold uppercase font-mono">{task.column}</span>
+                        <span className="font-mono text-[9px] font-bold text-zinc-400">
+                          {task.id}
+                        </span>
+                        <span className="rounded bg-blue-50 text-blue-700 px-1 py-0.5 text-[8px] font-bold uppercase font-mono">
+                          {task.column}
+                        </span>
                       </div>
-                      <h4 className="text-xs font-medium text-zinc-800 leading-snug line-clamp-2">{task.title}</h4>
+                      <h4 className="text-xs font-medium text-zinc-800 leading-snug line-clamp-2">
+                        {task.title}
+                      </h4>
                       <div className="mt-2 flex justify-between items-center text-[10px] text-zinc-450 font-sans">
-                        <span>Owner: {task.assignee?.name || "Unassigned"}</span>
+                        <span>
+                          Owner: {task.assignee?.name || "Unassigned"}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -422,7 +470,6 @@ export default function TeamChat({
               )}
             </div>
 
-            {/* Blocked / High Priority Group */}
             <div>
               <h3 className="text-[10px] font-bold uppercase tracking-wider text-amber-600 mb-2 px-1 flex items-center justify-between">
                 <span>Blocked / High Priority ({stuckTasks.length})</span>
@@ -434,18 +481,34 @@ export default function TeamChat({
               ) : (
                 <div className="flex flex-col gap-2">
                   {stuckTasks.map((task) => {
-                    const isCritical = task.priority?.toLowerCase() === "critical";
+                    const isCritical =
+                      task.priority?.toLowerCase() === "critical";
                     return (
-                      <div key={task.id} className="p-3 bg-white border border-zinc-150 rounded-lg shadow-2xs hover:border-zinc-350 transition-all">
+                      <div
+                        key={task.id}
+                        className="p-3 bg-white border border-zinc-150 rounded-lg shadow-2xs hover:border-zinc-350 transition-all"
+                      >
                         <div className="flex justify-between items-start mb-1 gap-2">
-                          <span className="font-mono text-[9px] font-bold text-zinc-400">{task.id}</span>
-                          <span className={`rounded px-1 py-0.5 text-[8px] font-bold uppercase font-mono ${isCritical ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}>
+                          <span className="font-mono text-[9px] font-bold text-zinc-400">
+                            {task.id}
+                          </span>
+                          <span
+                            className={`rounded px-1 py-0.5 text-[8px] font-bold uppercase font-mono ${
+                              isCritical
+                                ? "bg-red-50 text-red-700"
+                                : "bg-amber-50 text-amber-700"
+                            }`}
+                          >
                             {task.priority}
                           </span>
                         </div>
-                        <h4 className="text-xs font-medium text-zinc-800 leading-snug line-clamp-2">{task.title}</h4>
+                        <h4 className="text-xs font-medium text-zinc-800 leading-snug line-clamp-2">
+                          {task.title}
+                        </h4>
                         <div className="mt-2 flex justify-between items-center text-[10px] text-zinc-455 font-sans">
-                          <span>Owner: {task.assignee?.name || "Unassigned"}</span>
+                          <span>
+                            Owner: {task.assignee?.name || "Unassigned"}
+                          </span>
                         </div>
                       </div>
                     );
