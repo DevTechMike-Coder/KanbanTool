@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, UserPlus, Users, Plus } from "lucide-react";
+import { Send, UserPlus, Users, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { sendMessage, getMessages } from "@/app/actions/chat";
 import TeamSwitcher from "./TeamSwitcher";
 import { useRouter } from "next/navigation";
@@ -71,6 +71,7 @@ export default function TeamChat({
   );
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [showMembers, setShowMembers] = useState(false);
 
   // Partition tasks
   const activeTasks = teamTasks.filter((t) => ["in-progress", "review"].includes(t.column?.toLowerCase()));
@@ -103,7 +104,7 @@ export default function TeamChat({
       } catch {
         // silently ignore polling errors
       }
-    }, 500);
+    }, 5000);
 
     return () => clearInterval(poll);
   }, [teamId]);
@@ -210,6 +211,21 @@ export default function TeamChat({
       {/* 2. Main Split Pane */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Side: Directory Roster */}
+        {/* Mobile members toggle button */}
+        <div className="md:hidden border-b border-zinc-100 px-4 py-2">
+          <button
+            type="button"
+            onClick={() => setShowMembers((v) => !v)}
+            className="flex w-full items-center justify-between text-xs font-semibold text-zinc-600 hover:text-zinc-900 transition-colors"
+          >
+            <span className="flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5" />
+              {showMembers ? "Hide Members" : `Show Members (${allProfiles.length})`}
+            </span>
+            {showMembers ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+
         <aside className="w-80 border-r border-zinc-100 bg-zinc-50/30 flex flex-col p-4 overflow-y-auto hidden md:flex">
           <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3 px-1">
             Workspace Directory ({allProfiles.length})
@@ -263,6 +279,39 @@ export default function TeamChat({
         </aside>
 
         {/* Right Side: Chat Streams */}
+        {/* Mobile members panel - collapsible */}
+        {showMembers && (
+          <div className="md:hidden border-b border-zinc-100 bg-zinc-50/30 px-4 py-3 flex flex-col gap-1.5 max-h-48 overflow-y-auto">
+            {allProfiles.map((member) => {
+              const memberName = member.name || member.email.split("@")[0];
+              const memberInitials = memberName
+                .split(" ")
+                .map((n: string) => n[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2);
+              return (
+                <div key={member.id} className="flex items-center gap-2 py-1">
+                  <div className="relative shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center text-[10px] font-bold text-zinc-600 overflow-hidden">
+                      {member.avatarUrl ? (
+                        <img src={member.avatarUrl} alt={memberName} className="w-full h-full object-cover" />
+                      ) : (
+                        memberInitials
+                      )}
+                    </div>
+                    <span className="absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full border border-white bg-emerald-500" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-medium text-zinc-800 truncate">{memberName}</span>
+                    <span className="text-[10px] text-zinc-400 truncate">{member.email}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         <main className="flex-1 flex flex-col bg-white overflow-hidden">
           <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
             {messages.map((msg) => {
