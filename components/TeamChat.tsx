@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Send, UserPlus, Users, Plus } from "lucide-react";
-import { sendMessage } from "@/app/actions/chat";
+import { sendMessage, getMessages } from "@/app/actions/chat";
 import TeamSwitcher from "./TeamSwitcher";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/toast";
@@ -91,53 +91,22 @@ export default function TeamChat({
     scrollToBottom();
   }, [messages]);
 
-  // Simulate live peer activity (incoming messages)
+  // Poll for real messages from DB every 5 seconds
   useEffect(() => {
-    if (!currentUser || allProfiles.length <= 1) return;
+    const poll = setInterval(async () => {
+      try {
+        const latest = await getMessages(teamId);
+        setMessages((prev) => {
+          if (latest.length !== prev.length) return latest;
+          return prev;
+        });
+      } catch {
+        // silently ignore polling errors
+      }
+    }, 5000);
 
-    const peerProfiles = allProfiles.filter((p) => p.id !== currentUser.id);
-    if (peerProfiles.length === 0) return;
-
-    const messagesPool = [
-      "Just pushed the latest styling updates to main.",
-      "Are we ready for the sprint review tomorrow?",
-      "I flagged a potential blocker on the review column task.",
-      "Just finished reviewing the backend PR. Looks clean!",
-      "I'm working on the auth workflow updates now.",
-      "Let's sync up on the database schema adjustments in 10 mins.",
-    ];
-
-    const timer = setInterval(() => {
-      // 25% chance of a simulated incoming message every 15 seconds
-      if (Math.random() > 0.25) return;
-
-      const randomPeer = peerProfiles[Math.floor(Math.random() * peerProfiles.length)];
-      const randomText = messagesPool[Math.floor(Math.random() * messagesPool.length)];
-      const peerName = randomPeer.name || randomPeer.email.split("@")[0];
-
-      const simulatedMsg: Message = {
-        id: `simulated-${Date.now()}`,
-        text: randomText,
-        teamId,
-        createdAt: new Date(),
-        sender: {
-          id: randomPeer.id,
-          name: randomPeer.name,
-          email: randomPeer.email,
-          avatarUrl: randomPeer.avatarUrl,
-        },
-      };
-
-      setMessages((prev) => [...prev, simulatedMsg]);
-      toast({
-        title: `Message from ${peerName}`,
-        message: randomText,
-        type: "info",
-      });
-    }, 15000);
-
-    return () => clearInterval(timer);
-  }, [currentUser, allProfiles, teamId, toast]);
+    return () => clearInterval(poll);
+  }, [teamId]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
