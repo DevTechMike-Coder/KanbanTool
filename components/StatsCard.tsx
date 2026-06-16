@@ -1,28 +1,30 @@
 import { Layers, CheckCircle2, Users2, Activity } from "lucide-react";
 
+interface Props {
+  projects: number;
+  openTasks: number;
+  completedTasks: number;
+  teamMembers: number;
+}
+
 export default function StatsCard({
-  activeProjects = 0,
-  openTasks = 0,
-  completedTasks = 0,
-  teamMembers = 0,
-}: {
-  activeProjects?: number;
-  openTasks?: number;
-  completedTasks?: number;
-  teamMembers?: number;
-}) {
+  projects,
+  openTasks,
+  completedTasks,
+  teamMembers,
+}: Props) {
   const stats = [
     {
       name: "Active Projects",
-      value: activeProjects.toString(),
-      change: "Live",
+      value: String(projects),
+      change: "live count",
       changeType: "positive",
       icon: Layers,
       iconColor: "text-blue-600 bg-blue-50 border-blue-100",
     },
     {
       name: "Open Tasks",
-      value: openTasks.toString(),
+      value: String(openTasks),
       change: "Assigned",
       changeType: "neutral",
       icon: Activity,
@@ -30,7 +32,7 @@ export default function StatsCard({
     },
     {
       name: "Completed Tasks",
-      value: completedTasks.toString(),
+      value: String(completedTasks),
       change: "Total Done",
       changeType: "positive",
       icon: CheckCircle2,
@@ -38,8 +40,8 @@ export default function StatsCard({
     },
     {
       name: "Team Members",
-      value: teamMembers.toString(),
-      change: "Registered",
+      value: String(teamMembers),
+      change: "across workspaces",
       changeType: "neutral",
       icon: Users2,
       iconColor: "text-indigo-600 bg-indigo-50 border-indigo-100",
@@ -50,7 +52,6 @@ export default function StatsCard({
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => {
         const IconComponent = stat.icon;
-
         return (
           <div
             key={stat.name}
@@ -66,7 +67,6 @@ export default function StatsCard({
                 <IconComponent aria-hidden="true" className="w-4 h-4" />
               </div>
             </div>
-
             <div className="mt-4 flex items-baseline gap-2">
               <span className="text-2xl font-bold tracking-tight text-zinc-900">
                 {stat.value}
