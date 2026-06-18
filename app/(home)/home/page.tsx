@@ -6,6 +6,10 @@ import { Search, HelpCircle } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import { getNotifications } from "@/app/actions/notifications";
 import { getStats } from "@/app/actions/stats";
+import { getSessionUserId } from "@/lib/auth/session";
+import { prisma } from "@/lib/prisma";
+import { getProjects } from "@/app/actions/tasks";
+import { getUserTeams } from "@/app/actions/chat";
 
 const t = {
   workspaceTitle: "Overview",
@@ -17,10 +21,21 @@ const t = {
 };
 
 export default async function HomePage() {
-  const [initialNotifications, stats] = await Promise.all([
+  const userId = await getSessionUserId();
+
+  const [initialNotifications, stats, userTeams] = await Promise.all([
     getNotifications(),
     getStats(),
+    userId ? getUserTeams() : Promise.resolve([]),
   ]);
+
+  let currentUser = null;
+  if (userId) {
+    currentUser = await prisma.profile.findUnique({ where: { id: userId } });
+  }
+
+  const teamIds = userTeams.map((t) => t.id);
+  const initialProjects = await getProjects(teamIds);
 
   return (
     <section className="px-4 py-6 md:px-8">
@@ -63,7 +78,11 @@ export default async function HomePage() {
       </div>
 
       <div className="mt-8">
-        <KanbanBoard />
+        <KanbanBoard
+          projects={initialProjects}
+          currentUser={currentUser}
+          userTeams={userTeams.map((t) => ({ id: t.id, name: t.name }))}
+        />
       </div>
     </section>
   );
