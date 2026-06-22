@@ -4,8 +4,24 @@ import { getProjectTeamMembers } from "@/app/actions/tasks";
 import { getProject as getStaticProject } from "@/lib/projects";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import type { WorkflowNode, WorkflowNodeStatus } from "@/lib/projects";
+import type { WorkflowNode, WorkflowNodeStatus, DependencyMode } from "@/lib/projects";
 import { getSessionUserId } from "@/lib/auth/session";
+
+interface CustomNodeState {
+  status?: WorkflowNodeStatus;
+  owner?: string;
+  output?: string;
+  dependency?: DependencyMode;
+  supportTeam?: string[];
+  forwardTeam?: string[];
+  blocker?: string;
+  mappedColumn?: string;
+}
+
+interface CustomWorkflowState {
+  customNodes?: WorkflowNode[];
+  [key: string]: CustomNodeState | WorkflowNode[] | undefined;
+}
 
 interface PageProps {
   params: Promise<{ projectId: string }>;
@@ -59,7 +75,7 @@ export default async function ProjectPage({ params }: PageProps) {
   }
 
   // 2. Parse custom workflow customizations (owners, blockers, deliverables)
-  let customWorkflowState: Record<string, any> = {};
+  let customWorkflowState: CustomWorkflowState = {};
   if (dbProject.workflowState) {
     try {
       customWorkflowState = JSON.parse(dbProject.workflowState);
@@ -71,7 +87,6 @@ export default async function ProjectPage({ params }: PageProps) {
   // 3. Fetch static project if it exists for pre-defined node paths
   const staticProj = getStaticProject(projectId);
 
-  let projectData;
   const tasks = dbProject.tasks;
 
   let baseNodes: WorkflowNode[] = [];
@@ -91,7 +106,7 @@ export default async function ProjectPage({ params }: PageProps) {
 
   function computeNodeStatus(
     nodeMappedColumn: string | undefined,
-    projectTasks: any[],
+    projectTasks: { column: string }[],
     currentStatus: WorkflowNodeStatus,
     isFirstNode: boolean,
   ): WorkflowNodeStatus {
@@ -159,7 +174,7 @@ export default async function ProjectPage({ params }: PageProps) {
       status = computeNodeStatus(mappedCol, tasks, status, index === 0);
     }
 
-    const customNode = customWorkflowState[node.id] || {};
+    const customNode = (customWorkflowState[node.id] as CustomNodeState) || {};
     let finalStatus =
       customNode.status !== undefined ? customNode.status : status;
 
@@ -211,7 +226,7 @@ export default async function ProjectPage({ params }: PageProps) {
         ? updatedNodes[0].id
         : "scope");
 
-  projectData = {
+  const projectData = {
     id: dbProject.id,
     name: dbProject.name,
     summary:

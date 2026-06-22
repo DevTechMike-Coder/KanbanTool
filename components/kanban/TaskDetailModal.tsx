@@ -94,6 +94,12 @@ export default function TaskDetailModal({
   const [newCommentText, setNewCommentText] = useState("");
   const [isUploadingFile, setIsUploadingFile] = useState(false);
 
+  const [prevTaskId, setPrevTaskId] = useState(task.id);
+  if (task.id !== prevTaskId) {
+    setPrevTaskId(task.id);
+    setIsLoadingDetails((task.comments ?? 0) > 0 || (task.files ?? 0) > 0);
+  }
+
   // Load comments + attachments on mount — skip if counts are already 0
   useEffect(() => {
     let active = true;
@@ -103,7 +109,6 @@ export default function TaskDetailModal({
     // Nothing to fetch — show empty state immediately, no spinner
     if (!hasComments && !hasFiles) return;
 
-    setIsLoadingDetails(true);
     const fetches: [Promise<TaskComment[]>, Promise<TaskAttachment[]>] = [
       hasComments
         ? (getTaskComments(task.id) as Promise<TaskComment[]>)

@@ -94,7 +94,7 @@ export default function SettingsForm({ profile }: SettingsFormProps) {
 
     try {
       await updateProfile({
-        name: name.trim() || (null as any), // fallback to null if empty
+        name: name.trim() || undefined, // fallback to undefined if empty
         bio: bio.trim() || null,
         avatarUrl: selectedAvatar || null,
       });
@@ -106,12 +106,12 @@ export default function SettingsForm({ profile }: SettingsFormProps) {
       });
 
       router.refresh();
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
+      const message = err instanceof Error ? err.message : "An error occurred while updating your profile.";
       toast({
         title: "Update Failed",
-        message:
-          err.message || "An error occurred while updating your profile.",
+        message,
         type: "error",
       });
     } finally {

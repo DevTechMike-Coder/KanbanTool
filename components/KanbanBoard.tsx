@@ -80,6 +80,23 @@ export default function KanbanBoard({
   const [tasks, setTasks] = useState<Task[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
 
+  // ── Sync states on prop/state changes in render phase ──────────────────────
+  const [prevLockedProjectId, setPrevLockedProjectId] = useState(lockedProjectId);
+  if (lockedProjectId !== prevLockedProjectId) {
+    setPrevLockedProjectId(lockedProjectId);
+    if (lockedProjectId) {
+      setSelectedProjectId(lockedProjectId);
+    }
+  }
+
+  const [prevSelectedProjectId, setPrevSelectedProjectId] = useState(selectedProjectId);
+  if (selectedProjectId !== prevSelectedProjectId) {
+    setPrevSelectedProjectId(selectedProjectId);
+    if (!selectedProjectId) {
+      setTasks([]);
+    }
+  }
+
   // ── Filter state ───────────────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
   const [filterPriority, setFilterPriority] = useState("");
@@ -102,10 +119,7 @@ export default function KanbanBoard({
     useSensor(KeyboardSensor),
   );
 
-  // ── Sync locked project ────────────────────────────────────────────────────
-  useEffect(() => {
-    if (lockedProjectId) setSelectedProjectId(lockedProjectId);
-  }, [lockedProjectId]);
+  // ── Sync locked project (handled in render sync) ───────────────────────────
 
   // ── Fetch tasks + profiles when project changes ────────────────────────────
   const refreshTasks = () => {
@@ -134,7 +148,6 @@ export default function KanbanBoard({
 
   useEffect(() => {
     if (!selectedProjectId) {
-      setTasks([]);
       return;
     }
     let active = true;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -75,6 +75,12 @@ export default function Sidebar({
   const [projectsList, setProjectsList] =
     useState<DbProject[]>(initialProjects);
 
+  const [prevInitialProjects, setPrevInitialProjects] = useState(initialProjects);
+  if (initialProjects !== prevInitialProjects) {
+    setPrevInitialProjects(initialProjects);
+    setProjectsList(initialProjects);
+  }
+
   // Project Creation Modal State
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
@@ -98,10 +104,7 @@ export default function Sidebar({
       .slice(0, 2)
       .toUpperCase() || "ME";
 
-  // Sync projects state if initialProjects changes
-  useEffect(() => {
-    setProjectsList(initialProjects);
-  }, [initialProjects]);
+  // Sync projects state if initialProjects changes (handled in render synchronization)
 
   // Toggle Collapse State Handler
   const toggleCollapse = () => {

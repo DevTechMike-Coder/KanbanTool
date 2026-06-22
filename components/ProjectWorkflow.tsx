@@ -33,6 +33,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const generateNodeId = () => `node-${Date.now()}`;
+
 // ─── Member chip multi-select ────────────────────────────────────────────────
 function MemberMultiSelect({
   label,
@@ -248,7 +250,7 @@ export function ProjectWorkflow({
       setNodeBlocker(node.blocker || "");
     } else {
       setSelectedNode({
-        id: `node-${Date.now()}`,
+        id: generateNodeId(),
         title: "",
         status: "up-next",
         owner: "",
@@ -271,7 +273,7 @@ export function ProjectWorkflow({
   };
 
   const persistWorkflow = async (nodes: WorkflowNode[]) => {
-    const state: Record<string, any> = { customNodes: nodes };
+    const state: Record<string, unknown> = { customNodes: nodes };
     nodes.forEach((n) => {
       state[n.id] = {
         owner: n.owner,
@@ -754,8 +756,7 @@ export function ProjectWorkflow({
                   className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-hidden text-amber-900"
                 />
                 <p className="text-[10px] text-zinc-400">
-                  Adding a blocker automatically sets this node's status to
-                  "Stuck".
+                  {"Adding a blocker automatically sets this node's status to \"Stuck\"."}
                 </p>
               </div>
 

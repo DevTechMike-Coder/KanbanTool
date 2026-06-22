@@ -35,11 +35,12 @@ export default function AcceptInviteClient({
         router.push(`/teams/${teamId}/collab`);
         router.refresh();
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
+      const message = err instanceof Error ? err.message : "An error occurred while accepting the invitation.";
       toast({
         title: "Failed to Accept Invitation",
-        message: err.message || "An error occurred while accepting the invitation.",
+        message,
         type: "error",
       });
     } finally {
@@ -56,7 +57,7 @@ export default function AcceptInviteClient({
         Join Workspace
       </h2>
       <p className="mt-2 text-sm text-zinc-500 max-w-sm">
-        <span className="font-semibold text-zinc-850">{creatorName}</span> has invited you to collaborate in the workspace <span className="font-semibold text-zinc-850">"{teamName}"</span>.
+        <span className="font-semibold text-zinc-850">{creatorName}</span> has invited you to collaborate in the workspace <span className="font-semibold text-zinc-850">&quot;{teamName}&quot;</span>.
       </p>
       <Button
         onClick={handleAccept}

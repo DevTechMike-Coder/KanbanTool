@@ -22,10 +22,14 @@ export default function AuthPromptModal({
     return () => clearTimeout(t);
   }, []);
 
-  // Allow parent to re-open the modal (e.g. when a protected action is tried)
-  useEffect(() => {
-    if (forceOpen) setVisible(true);
-  }, [forceOpen]);
+  const [prevForceOpen, setPrevForceOpen] = useState(forceOpen);
+
+  if (forceOpen !== prevForceOpen) {
+    setPrevForceOpen(forceOpen);
+    if (forceOpen) {
+      setVisible(true);
+    }
+  }
 
   const handleClose = useCallback(() => {
     setVisible(false);

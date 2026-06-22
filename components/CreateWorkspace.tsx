@@ -35,11 +35,10 @@ export default function CreateWorkspace() {
       const team = await createTeam(workspaceName.trim());
       setCreatedTeam({ id: team.id, name: team.name });
       router.refresh();
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setErrorMsg(
-        err.message || "Failed to create workspace. Please try again.",
-      );
+      const message = err instanceof Error ? err.message : "Failed to create workspace. Please try again.";
+      setErrorMsg(message);
     } finally {
       setIsSubmitting(false);
     }

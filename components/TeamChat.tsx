@@ -46,7 +46,7 @@ interface TeamTask {
 interface TeamChatProps {
   teamId: string;
   teamName: string;
-  initialMessages: any[];
+  initialMessages: (Omit<Message, "createdAt"> & { createdAt: string | Date })[];
   currentUser: Profile | null;
   allProfiles: Profile[];
   userTeams: Array<{ id: string; name: string }>;
@@ -75,7 +75,7 @@ export default function TeamChat({
 
   // Presence tracking
   const [onlineUsers, setOnlineUsers] = useState<Record<string, boolean>>({});
-  const lastActivityRef = useRef<number>(Date.now());
+  const lastActivityRef = useRef<number | null>(null);
   const lastPingRef = useRef<number>(0);
 
 
@@ -107,6 +107,8 @@ export default function TeamChat({
   useEffect(() => {
     if (!currentUser) return;
 
+    lastActivityRef.current = Date.now();
+
     const activityEvents = [
       "mousemove", "mousedown", "keydown",
       "scroll", "touchstart", "click",
@@ -122,7 +124,8 @@ export default function TeamChat({
     // Every 2s: ping if the user was active in the last 5s
     const heartbeatInterval = setInterval(() => {
       const now = Date.now();
-      const isInactive = now - lastActivityRef.current > 5_000;
+      const lastActivity = lastActivityRef.current ?? now;
+      const isInactive = now - lastActivity > 5_000;
       const recentlyPinged = now - lastPingRef.current < 3_000;
       if (!isInactive && !recentlyPinged) {
         pingPresence().catch(() => {});

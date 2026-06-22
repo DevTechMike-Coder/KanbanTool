@@ -34,14 +34,17 @@ export default function ResetPasswordForm() {
     const token = params.get("access_token");
     const type = params.get("type");
 
-    if (token && type === "recovery") {
-      setAccessToken(token);
-      setStatus("ready");
-      // Clean the token from the URL bar without a navigation
-      window.history.replaceState(null, "", window.location.pathname);
-    } else {
-      setStatus("invalid");
-    }
+    // Defer state updates to avoid synchronous setState inside useEffect body
+    setTimeout(() => {
+      if (token && type === "recovery") {
+        setAccessToken(token);
+        setStatus("ready");
+        // Clean the token from the URL bar without a navigation
+        window.history.replaceState(null, "", window.location.pathname);
+      } else {
+        setStatus("invalid");
+      }
+    }, 0);
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {

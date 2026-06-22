@@ -94,10 +94,11 @@ export default function MembersView({
         type: "success",
       });
       router.refresh();
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to remove member. Please try again.";
       toast({
         title: "Action Failed",
-        message: err.message || "Failed to remove member. Please try again.",
+        message,
         type: "error",
       });
     } finally {
@@ -124,10 +125,11 @@ export default function MembersView({
       });
       router.push("/teams");
       router.refresh();
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to leave workspace. Please try again.";
       toast({
         title: "Action Failed",
-        message: err.message || "Failed to leave workspace. Please try again.",
+        message,
         type: "error",
       });
       setIsActionInProgress(null);

@@ -61,6 +61,13 @@ type Task = {
   }>;
 };
 
+type Profile = {
+  id: string;
+  name: string | null;
+  email: string;
+  avatarUrl: string | null;
+};
+
 const columns = [
   { id: "backlog" as ColumnId, title: "Backlog", dotColor: "bg-zinc-400" },
   { id: "todo" as ColumnId, title: "Todo", dotColor: "bg-blue-500" },
@@ -102,8 +109,8 @@ export default function DependencyGraph({
 }: {
   projectId: string;
   tasks: Task[];
-  profiles?: any[];
-  currentUser?: any;
+  profiles?: Profile[];
+  currentUser?: Profile | null;
   onRefresh?: () => void;
 }) {
   const router = useRouter();
@@ -267,10 +274,11 @@ export default function DependencyGraph({
       });
       if (onRefresh) onRefresh();
       router.refresh();
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to add task dependency.";
       toast({
         title: "Link Failed",
-        message: err.message || "Failed to add task dependency.",
+        message,
         type: "error",
       });
     } finally {
@@ -290,10 +298,11 @@ export default function DependencyGraph({
       });
       if (onRefresh) onRefresh();
       router.refresh();
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to remove task dependency.";
       toast({
         title: "Unlink Failed",
-        message: err.message || "Failed to remove task dependency.",
+        message,
         type: "error",
       });
     }
