@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, UserPlus, Users, Plus, ChevronDown, ChevronUp } from "lucide-react";
+import { Send, UserPlus, Users, Plus } from "lucide-react";
 import { sendMessage, getMessages } from "@/app/actions/chat";
 import TeamSwitcher from "./TeamSwitcher";
 import { useRouter } from "next/navigation";
@@ -71,7 +71,7 @@ export default function TeamChat({
   );
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [showMembers, setShowMembers] = useState(false);
+
 
   // Partition tasks
   const activeTasks = teamTasks.filter((t) =>
@@ -204,25 +204,13 @@ export default function TeamChat({
 
       {/* Main Split Pane */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Mobile members toggle */}
+        {/* Mobile online count indicator */}
         <div className="md:hidden border-b border-zinc-100 px-4 py-2 w-full absolute z-10 bg-white">
-          <button
-            type="button"
-            onClick={() => setShowMembers((v) => !v)}
-            className="flex w-full items-center justify-between text-xs font-semibold text-zinc-600 hover:text-zinc-900 transition-colors"
-          >
-            <span className="flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5" />
-              {showMembers
-                ? "Hide Members"
-                : `Show Members (${allProfiles.length})`}
-            </span>
-            {showMembers ? (
-              <ChevronUp className="w-3.5 h-3.5" />
-            ) : (
-              <ChevronDown className="w-3.5 h-3.5" />
-            )}
-          </button>
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600">
+            <Users className="w-3.5 h-3.5" />
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span className="text-zinc-700">{allProfiles.length} online</span>
+          </span>
         </div>
 
         {/* Left Sidebar: Directory Roster (desktop) */}
@@ -289,56 +277,7 @@ export default function TeamChat({
 
         {/* Center: Chat */}
         <main className="flex-1 flex flex-col bg-white overflow-hidden">
-          {/* Mobile members panel (collapsible) */}
-          {showMembers && (
-            <div className="md:hidden border-b border-zinc-100 bg-zinc-50/30 px-4 py-3 flex flex-col gap-1.5 max-h-48 overflow-y-auto mt-9">
-              <div className="flex items-center justify-between pb-1.5 border-b border-zinc-200/60 mb-1">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase">Workspace Directory</span>
-                <button
-                  type="button"
-                  onClick={() => router.push(`/teams/${teamId}/members`)}
-                  className="text-[10px] font-bold text-indigo-600 hover:underline"
-                >
-                  Manage Roster &rarr;
-                </button>
-              </div>
-              {allProfiles.map((member) => {
-                const memberName = member.name || member.email.split("@")[0];
-                const memberInitials = memberName
-                  .split(" ")
-                  .map((n: string) => n[0])
-                  .join("")
-                  .toUpperCase()
-                  .slice(0, 2);
-                return (
-                  <div key={member.id} className="flex items-center gap-2 py-1">
-                    <div className="relative shrink-0">
-                      <div className="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center text-[10px] font-bold text-zinc-600 overflow-hidden">
-                        {member.avatarUrl ? (
-                          <img
-                            src={member.avatarUrl}
-                            alt={memberName}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          memberInitials
-                        )}
-                      </div>
-                      <span className="absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full border border-white bg-emerald-500" />
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-xs font-medium text-zinc-800 truncate">
-                        {memberName}
-                      </span>
-                      <span className="text-[10px] text-zinc-400 truncate">
-                        {member.email}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 flex flex-col gap-3">
