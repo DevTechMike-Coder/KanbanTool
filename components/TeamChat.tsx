@@ -227,9 +227,17 @@ export default function TeamChat({
 
         {/* Left Sidebar: Directory Roster (desktop) */}
         <aside className="w-80 border-r border-zinc-100 bg-zinc-50/30 flex-col p-4 overflow-y-auto hidden md:flex">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3 px-1">
-            Workspace Directory ({allProfiles.length})
-          </h2>
+          <div className="flex items-center justify-between mb-3 px-1">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+              Workspace Directory ({allProfiles.length})
+            </h2>
+            <button
+              onClick={() => router.push(`/teams/${teamId}/members`)}
+              className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors hover:underline cursor-pointer"
+            >
+              Manage
+            </button>
+          </div>
           <div className="flex flex-col gap-1.5">
             {allProfiles.map((member) => {
               const memberName = member.name || member.email.split("@")[0];
@@ -284,6 +292,16 @@ export default function TeamChat({
           {/* Mobile members panel (collapsible) */}
           {showMembers && (
             <div className="md:hidden border-b border-zinc-100 bg-zinc-50/30 px-4 py-3 flex flex-col gap-1.5 max-h-48 overflow-y-auto mt-9">
+              <div className="flex items-center justify-between pb-1.5 border-b border-zinc-200/60 mb-1">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase">Workspace Directory</span>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/teams/${teamId}/members`)}
+                  className="text-[10px] font-bold text-indigo-600 hover:underline"
+                >
+                  Manage Roster &rarr;
+                </button>
+              </div>
               {allProfiles.map((member) => {
                 const memberName = member.name || member.email.split("@")[0];
                 const memberInitials = memberName

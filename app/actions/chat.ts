@@ -276,3 +276,68 @@ export async function joinTeamViaInvite(teamId: string) {
 
   return { success: true };
 }
+
+export async function removeTeamMember(teamId: string, memberId: string) {
+  const userId = await getSessionUserId();
+  if (!userId) {
+    throw new Error("You must be logged in to perform this action.");
+  }
+
+  const team = await prisma.team.findUnique({
+    where: { id: teamId },
+    select: { id: true, creatorId: true },
+  });
+
+  if (!team) {
+    throw new Error("Workspace not found.");
+  }
+
+  if (memberId === team.creatorId) {
+    throw new Error(
+      "The creator cannot leave the workspace. You can delete the workspace in settings.",
+    );
+  }
+
+  // A member can leave, or the creator can kick
+  const isLeavingSelf = userId === memberId;
+  const isCreatorKicking = userId === team.creatorId;
+
+  if (!isLeavingSelf && !isCreatorKicking) {
+    throw new Error("You do not have permission to remove this member.");
+  }
+
+  // Get profile details of the user being removed to write the message
+  const profile = await prisma.profile.findUnique({
+    where: { id: memberId },
+    select: { name: true, email: true },
+  });
+
+  const memberName = profile?.name || profile?.email || "A member";
+
+  await prisma.$transaction([
+    prisma.team.update({
+      where: { id: teamId },
+      data: {
+        members: {
+          disconnect: { id: memberId },
+        },
+      },
+    }),
+    prisma.message.create({
+      data: {
+        text: isLeavingSelf
+          ? `${memberName} left the workspace.`
+          : `${memberName} was removed from the workspace by the owner.`,
+        teamId,
+        senderId: userId,
+      },
+    }),
+  ]);
+
+  revalidatePath("/teams");
+  revalidatePath(`/teams/${teamId}/collab`);
+  revalidatePath(`/teams/${teamId}/members`);
+  revalidatePath("/home");
+
+  return { success: true };
+}
