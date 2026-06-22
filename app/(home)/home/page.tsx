@@ -1,9 +1,9 @@
 import StatsCard from "@/components/StatsCard";
 import KanbanBoard from "@/components/KanbanBoard";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, HelpCircle } from "lucide-react";
+import { Search } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
+import HelpPanel from "@/components/HelpPanel";
 import { getNotifications } from "@/app/actions/notifications";
 import { getStats } from "@/app/actions/stats";
 import { getSessionUserId } from "@/lib/auth/session";
@@ -16,7 +16,6 @@ const t = {
   workspaceDescription: "Track projects, tasks, and team activity.",
   searchPlaceholder: "Search projects, tasks, or members...",
   searchLabel: "Search workspace",
-  helpLabel: "Help",
   createButton: "New Project",
 };
 
@@ -61,14 +60,7 @@ export default async function HomePage() {
           <div className="flex items-center gap-3">
             <NotificationBell initialNotifications={initialNotifications} />
 
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              aria-label={t.helpLabel}
-            >
-              <HelpCircle />
-            </Button>
+            <HelpPanel />
           </div>
         </div>
       </header>
