@@ -98,6 +98,8 @@ export default function TaskDetailModal({
   if (task.id !== prevTaskId) {
     setPrevTaskId(task.id);
     setIsLoadingDetails((task.comments ?? 0) > 0 || (task.files ?? 0) > 0);
+    setComments([]);
+    setAttachments([]);
   }
 
   // Load comments + attachments on mount — skip if counts are already 0

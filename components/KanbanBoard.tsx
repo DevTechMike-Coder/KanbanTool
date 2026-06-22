@@ -92,9 +92,7 @@ export default function KanbanBoard({
   const [prevSelectedProjectId, setPrevSelectedProjectId] = useState(selectedProjectId);
   if (selectedProjectId !== prevSelectedProjectId) {
     setPrevSelectedProjectId(selectedProjectId);
-    if (!selectedProjectId) {
-      setTasks([]);
-    }
+    setTasks([]);
   }
 
   // ── Filter state ───────────────────────────────────────────────────────────
@@ -537,10 +535,7 @@ export default function KanbanBoard({
       ) : (
         <div className="w-full">
           <DependencyGraph
-            projectId={selectedProjectId}
             tasks={tasks}
-            profiles={profiles}
-            currentUser={currentUser}
             onRefresh={refreshTasks}
           />
         </div>

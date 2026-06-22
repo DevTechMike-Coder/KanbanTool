@@ -61,13 +61,6 @@ type Task = {
   }>;
 };
 
-type Profile = {
-  id: string;
-  name: string | null;
-  email: string;
-  avatarUrl: string | null;
-};
-
 const columns = [
   { id: "backlog" as ColumnId, title: "Backlog", dotColor: "bg-zinc-400" },
   { id: "todo" as ColumnId, title: "Todo", dotColor: "bg-blue-500" },
@@ -101,16 +94,10 @@ const priorityConfigs: Record<string, { label: string; badgeClass: string }> = {
 };
 
 export default function DependencyGraph({
-  projectId,
   tasks: initialTasks,
-  profiles = [],
-  currentUser = null,
   onRefresh,
 }: {
-  projectId: string;
   tasks: Task[];
-  profiles?: Profile[];
-  currentUser?: Profile | null;
   onRefresh?: () => void;
 }) {
   const router = useRouter();
