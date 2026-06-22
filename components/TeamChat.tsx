@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Send, UserPlus, Users, Plus } from "lucide-react";
 import { sendMessage, getMessages } from "@/app/actions/chat";
+import { pingPresence, getTeamPresence } from "@/app/actions/presence";
 import TeamSwitcher from "./TeamSwitcher";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/toast";
@@ -72,6 +73,11 @@ export default function TeamChat({
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
 
+  // Presence tracking
+  const [onlineUsers, setOnlineUsers] = useState<Record<string, boolean>>({});
+  const lastActivityRef = useRef<number>(Date.now());
+  const lastPingRef = useRef<number>(0);
+
 
   // Partition tasks
   const activeTasks = teamTasks.filter((t) =>
@@ -92,6 +98,56 @@ export default function TeamChat({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // --- Presence: heartbeat + polling ---
+  const handleActivity = useCallback(() => {
+    lastActivityRef.current = Date.now();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const activityEvents = [
+      "mousemove", "mousedown", "keydown",
+      "scroll", "touchstart", "click",
+    ] as const;
+    activityEvents.forEach((e) =>
+      window.addEventListener(e, handleActivity, { passive: true })
+    );
+
+    // Send initial ping immediately
+    pingPresence().catch(() => {});
+    lastPingRef.current = Date.now();
+
+    // Every 2s: ping if the user was active in the last 5s
+    const heartbeatInterval = setInterval(() => {
+      const now = Date.now();
+      const isInactive = now - lastActivityRef.current > 5_000;
+      const recentlyPinged = now - lastPingRef.current < 3_000;
+      if (!isInactive && !recentlyPinged) {
+        pingPresence().catch(() => {});
+        lastPingRef.current = now;
+      }
+    }, 2_000);
+
+    // Fetch real presence from DB every 5s
+    const fetchPresence = async () => {
+      try {
+        const presence = await getTeamPresence(teamId);
+        setOnlineUsers(presence);
+      } catch {}
+    };
+    fetchPresence();
+    const presenceInterval = setInterval(fetchPresence, 5_000);
+
+    return () => {
+      activityEvents.forEach((e) =>
+        window.removeEventListener(e, handleActivity)
+      );
+      clearInterval(heartbeatInterval);
+      clearInterval(presenceInterval);
+    };
+  }, [teamId, currentUser, handleActivity]);
 
   // Poll for real messages from DB every 5 seconds
   useEffect(() => {
@@ -213,7 +269,9 @@ export default function TeamChat({
           >
             <Users className="w-3.5 h-3.5" />
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span className="text-zinc-700">{allProfiles.length} online</span>
+            <span className="text-zinc-700">
+              {allProfiles.filter((p) => onlineUsers[p.id]).length} online
+            </span>
           </button>
         </div>
 
@@ -221,7 +279,7 @@ export default function TeamChat({
         <aside className="w-80 border-r border-zinc-100 bg-zinc-50/30 flex-col p-4 overflow-y-auto hidden md:flex">
           <div className="flex items-center justify-between mb-3 px-1">
             <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-              Workspace Directory ({allProfiles.length})
+              Workspace Directory ({allProfiles.filter((p) => onlineUsers[p.id]).length} online)
             </h2>
             <button
               onClick={() => router.push(`/teams/${teamId}/members`)}
@@ -259,7 +317,7 @@ export default function TeamChat({
                           {memberInitials}
                         </div>
                       )}
-                      <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full border border-white bg-emerald-500" />
+                      <span className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border border-white ${onlineUsers[member.id] ? "bg-emerald-500" : "bg-zinc-300"}`} />
                     </div>
                     <div className="flex flex-col min-w-0">
                       <span className="text-xs font-semibold text-zinc-800 truncate">
