@@ -206,11 +206,15 @@ export default function TeamChat({
       <div className="flex flex-1 overflow-hidden">
         {/* Mobile online count indicator */}
         <div className="md:hidden border-b border-zinc-100 px-4 py-2 w-full absolute z-10 bg-white">
-          <span className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600">
+          <button
+            type="button"
+            onClick={() => router.push(`/teams/${teamId}/members`)}
+            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-zinc-900 transition-colors cursor-pointer"
+          >
             <Users className="w-3.5 h-3.5" />
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
             <span className="text-zinc-700">{allProfiles.length} online</span>
-          </span>
+          </button>
         </div>
 
         {/* Left Sidebar: Directory Roster (desktop) */}
