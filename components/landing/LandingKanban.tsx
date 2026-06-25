@@ -113,7 +113,7 @@ export default function LandingKanban() {
     toast({
       title: "Interactive Workspace Preview",
       message: "This is a preview board. Sign up or log in to create and edit tasks, manage attachments, and add comments!",
-      type: "neutral",
+      type: "info",
     });
   };
 
