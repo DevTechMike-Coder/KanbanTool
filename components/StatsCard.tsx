@@ -1,4 +1,9 @@
+"use client";
+
+import { useRef } from "react";
 import { Layers, CheckCircle2, Users2, Activity } from "lucide-react";
+import { gsap, useGSAP, EASE, prefersReducedMotion, showWithoutMotion } from "@/lib/gsap";
+import CountUp from "@/components/animations/CountUp";
 
 interface Props {
   projects: number;
@@ -13,10 +18,12 @@ export default function StatsCard({
   completedTasks,
   teamMembers,
 }: Props) {
+  const gridRef = useRef<HTMLDivElement>(null);
+
   const stats = [
     {
       name: "Active Projects",
-      value: String(projects),
+      value: projects,
       change: "live count",
       changeType: "positive",
       icon: Layers,
@@ -24,7 +31,7 @@ export default function StatsCard({
     },
     {
       name: "Open Tasks",
-      value: String(openTasks),
+      value: openTasks,
       change: "Assigned",
       changeType: "neutral",
       icon: Activity,
@@ -32,7 +39,7 @@ export default function StatsCard({
     },
     {
       name: "Completed Tasks",
-      value: String(completedTasks),
+      value: completedTasks,
       change: "Total Done",
       changeType: "positive",
       icon: CheckCircle2,
@@ -40,7 +47,7 @@ export default function StatsCard({
     },
     {
       name: "Team Members",
-      value: String(teamMembers),
+      value: teamMembers,
       change: "across workspaces",
       changeType: "neutral",
       icon: Users2,
@@ -48,14 +55,56 @@ export default function StatsCard({
     },
   ];
 
+  useGSAP(
+    () => {
+      if (!gridRef.current) return;
+      const cards = gridRef.current.children;
+
+      if (prefersReducedMotion()) {
+        showWithoutMotion(cards);
+        return;
+      }
+
+      gsap.fromTo(
+        cards,
+        { autoAlpha: 0, y: 18, scale: 0.97 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.5,
+          ease: EASE.smooth,
+          stagger: 0.08,
+          clearProps: "transform,opacity,visibility",
+        },
+      );
+    },
+    { scope: gridRef },
+  );
+
+  // Lift cards on hover for a bit more depth than the CSS transition alone gives.
+  const handleEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (prefersReducedMotion()) return;
+    gsap.to(e.currentTarget, { y: -4, duration: 0.25, ease: EASE.smooth });
+  };
+  const handleLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (prefersReducedMotion()) return;
+    gsap.to(e.currentTarget, { y: 0, duration: 0.25, ease: EASE.smooth });
+  };
+
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div
+      ref={gridRef}
+      className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
+    >
       {stats.map((stat) => {
         const IconComponent = stat.icon;
         return (
           <div
             key={stat.name}
-            className="flex flex-col justify-between rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md"
+            onMouseEnter={handleEnter}
+            onMouseLeave={handleLeave}
+            className="flex flex-col justify-between rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition-colors hover:border-zinc-300 hover:shadow-md"
           >
             <div className="flex items-center justify-between w-full">
               <span className="text-sm font-medium text-zinc-500">
@@ -69,7 +118,7 @@ export default function StatsCard({
             </div>
             <div className="mt-4 flex items-baseline gap-2">
               <span className="text-2xl font-bold tracking-tight text-zinc-900">
-                {stat.value}
+                <CountUp value={stat.value} />
               </span>
               <span
                 className={`text-xs font-medium font-mono px-1.5 py-0.5 rounded ${

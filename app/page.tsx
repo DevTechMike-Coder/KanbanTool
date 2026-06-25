@@ -8,10 +8,12 @@ import {
   Share2,
   Cpu,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { getSessionUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
+import AnimatedHero from "@/components/animations/AnimatedHero";
+import RevealOnScroll from "@/components/animations/RevealOnScroll";
+import LandingKanban from "@/components/landing/LandingKanban";
 
 const t = {
   brandName: "Vertex Canvas",
@@ -107,21 +109,23 @@ export default async function Home() {
 
       {/* About */}
       <section className="flex flex-col items-center justify-center text-center gap-6 max-w-3xl mx-auto px-4 py-20">
-        <div>
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-2">
-            {t.heroTitle}
-          </h1>
+        <AnimatedHero>
+          <div>
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-2">
+              {t.heroTitle}
+            </h1>
 
-          <p className="text-lg text-gray-600">{t.heroDescription}</p>
-        </div>
-        <div>
-          <Link
-            href="/home"
-            className="flex items-center gap-1 text-xl border border-gray-300 rounded-md px-4 py-2 shadow-sm transition-all duration-300 ease-out motion-safe:animate-[vertex-cta-float_4s_ease-in-out_infinite] hover:-translate-y-0.5 hover:scale-[1.02] hover:border-indigo-400 hover:text-indigo-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2"
-          >
-            {t.getStarted}
-          </Link>
-        </div>
+            <p className="text-lg text-gray-600">{t.heroDescription}</p>
+          </div>
+          <div>
+            <Link
+              href="/home"
+              className="flex items-center gap-1 text-xl border border-gray-300 rounded-md px-4 py-2 shadow-sm transition-all duration-300 ease-out motion-safe:animate-[vertex-cta-float_4s_ease-in-out_infinite] hover:-translate-y-0.5 hover:scale-[1.02] hover:border-indigo-400 hover:text-indigo-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2"
+            >
+              {t.getStarted}
+            </Link>
+          </div>
+        </AnimatedHero>
       </section>
 
       {/* Why Choose Vertex Canvas? */}
@@ -137,7 +141,10 @@ export default async function Home() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Text points */}
-          <div className="lg:col-span-5 flex flex-col gap-8">
+          <RevealOnScroll
+            className="lg:col-span-5 flex flex-col gap-8"
+            stagger
+          >
             <div>
               <p className="text-lg font-medium text-gray-700 dark:text-zinc-300 leading-relaxed">
                 {
@@ -195,26 +202,21 @@ export default async function Home() {
                 </div>
               </div>
             </div>
-          </div>
+          </RevealOnScroll>
 
-          {/* Styled Image Frame */}
-          <div className="lg:col-span-7">
-            <div className="relative rounded-2xl border border-gray-200/80 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/50 p-2 shadow-2xl overflow-hidden group transition-all duration-300 hover:border-indigo-500/20">
+          {/* Styled Kanban Preview Frame */}
+          <RevealOnScroll className="lg:col-span-7" distance={36} delay={0.1}>
+            <div className="relative rounded-2xl border border-gray-200/80 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/50 p-3 shadow-2xl overflow-hidden group transition-all duration-300 hover:border-indigo-500/20">
               <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="flex items-center gap-1.5 px-3 py-2 border-b border-gray-200/80 dark:border-zinc-800 bg-white/50 dark:bg-black/50 backdrop-blur-sm rounded-t-xl mb-2">
+              <div className="flex items-center gap-1.5 px-3 py-2 border-b border-gray-200/80 dark:border-zinc-800 bg-white/50 dark:bg-black/50 backdrop-blur-sm rounded-t-xl mb-4">
                 <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
                 <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
                 <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                <span className="text-[10px] font-mono text-zinc-400 ml-2">Interactive Workspace Preview</span>
               </div>
-              <Image
-                src="/image/kanbanPage.jpg"
-                alt={t.kanbanPageAlt}
-                width={800}
-                height={800}
-                className="rounded-lg w-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
-              />
+              <LandingKanban />
             </div>
-          </div>
+          </RevealOnScroll>
         </div>
       </section>
 
@@ -229,7 +231,7 @@ export default async function Home() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
+        <RevealOnScroll className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4" stagger>
           {/* Feature 1: Ironclad Security */}
           <div className="group relative flex flex-col justify-between p-8 rounded-2xl bg-white dark:bg-zinc-900/50 border border-gray-200/60 dark:border-zinc-800/60 shadow-sm hover:shadow-md hover:border-indigo-500/20 dark:hover:border-indigo-500/20 transition-all duration-300">
             <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors" />
@@ -241,7 +243,7 @@ export default async function Home() {
                 <h3 className="text-xl font-bold text-gray-900 dark:text-zinc-100 mb-2">
                   {t.securityTitle}
                 </h3>
-                <p className="text-sm text-gray-650 dark:text-zinc-400 leading-relaxed">
+                <p className="text-sm text-gray-655 dark:text-zinc-400 leading-relaxed">
                   {t.securityDesc}
                 </p>
               </div>
@@ -259,7 +261,7 @@ export default async function Home() {
                 <h3 className="text-xl font-bold text-gray-900 dark:text-zinc-100 mb-2">
                   {t.collabTitle}
                 </h3>
-                <p className="text-sm text-gray-650 dark:text-zinc-400 leading-relaxed">
+                <p className="text-sm text-gray-655 dark:text-zinc-400 leading-relaxed">
                   {t.collabDesc}
                 </p>
               </div>
@@ -277,13 +279,13 @@ export default async function Home() {
                 <h3 className="text-xl font-bold text-gray-900 dark:text-zinc-100 mb-2">
                   {t.perfTitle}
                 </h3>
-                <p className="text-sm text-gray-650 dark:text-zinc-400 leading-relaxed">
+                <p className="text-sm text-gray-655 dark:text-zinc-400 leading-relaxed">
                   {t.perfDesc}
                 </p>
               </div>
             </div>
           </div>
-        </div>
+        </RevealOnScroll>
       </section>
 
       <footer className="w-full border-t border-gray-200 dark:border-zinc-800 backdrop-blur-sm mt-auto transition-colors duration-300">

@@ -1,9 +1,11 @@
 "use client";
 
+import { useRef } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { MoreHorizontal, Plus } from "lucide-react";
 import TaskCard from "./TaskCard";
 import { type Column, type Task } from "@/lib/types/kanban";
+import { gsap, useGSAP, EASE, prefersReducedMotion, showWithoutMotion } from "@/lib/gsap";
 
 export default function KanbanColumn({
   column,
@@ -17,6 +19,35 @@ export default function KanbanColumn({
   onTaskClick: (task: Task) => void;
 }) {
   const { isOver, setNodeRef } = useDroppable({ id: column.id });
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // Stagger task cards in on initial mount.
+  useGSAP(
+    () => {
+      if (!listRef.current) return;
+      const cards = listRef.current.querySelectorAll("[data-task-card]");
+      if (!cards.length) return;
+
+      if (prefersReducedMotion()) {
+        showWithoutMotion(cards);
+        return;
+      }
+
+      gsap.fromTo(
+        cards,
+        { autoAlpha: 0, y: 12 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.35,
+          ease: EASE.smooth,
+          stagger: 0.05,
+          clearProps: "transform,opacity,visibility",
+        },
+      );
+    },
+    { dependencies: [], scope: listRef },
+  );
 
   return (
     <section
@@ -54,7 +85,10 @@ export default function KanbanColumn({
         </div>
       </div>
 
-      <div className="flex max-h-[calc(100vh-260px)] flex-1 flex-col gap-2.5 overflow-y-auto pr-0.5 scrollbar-thin">
+      <div
+        ref={listRef}
+        className="flex max-h-[calc(100vh-260px)] flex-1 flex-col gap-2.5 overflow-y-auto pr-0.5 scrollbar-thin"
+      >
         {tasks.length > 0 ? (
           tasks.map((task) => (
             <TaskCard key={task.id} task={task} onClick={() => onTaskClick(task)} />

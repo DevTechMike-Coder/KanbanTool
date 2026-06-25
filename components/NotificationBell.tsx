@@ -8,6 +8,7 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
 } from "@/app/actions/notifications";
+import { gsap, useGSAP, EASE, prefersReducedMotion, showWithoutMotion } from "@/lib/gsap";
 
 type Notification = {
   id: string;
@@ -59,9 +60,56 @@ export default function NotificationBell({
     useState<Notification[]>(initialNotifications);
   const [isPending, startTransition] = useTransition();
   const panelRef = useRef<HTMLDivElement>(null);
+  const bellRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const prevUnreadRef = useRef(initialNotifications.filter((n) => !n.read).length);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const badgeLabel = unreadCount > 99 ? "99+" : String(unreadCount);
+
+  // Give the bell a little wiggle whenever the unread count goes up.
+  useGSAP(
+    () => {
+      if (!bellRef.current) return;
+      if (unreadCount > prevUnreadRef.current && !prefersReducedMotion()) {
+        gsap.fromTo(
+          bellRef.current,
+          { rotate: -12 },
+          {
+            rotate: 0,
+            duration: 0.5,
+            ease: "elastic.out(1, 0.4)",
+          },
+        );
+      }
+      prevUnreadRef.current = unreadCount;
+    },
+    { dependencies: [unreadCount] },
+  );
+
+  // Scale the dropdown panel in when it opens.
+  useGSAP(
+    () => {
+      if (!open || !dropdownRef.current) return;
+      if (prefersReducedMotion()) {
+        showWithoutMotion(dropdownRef.current);
+        return;
+      }
+
+      gsap.fromTo(
+        dropdownRef.current,
+        { autoAlpha: 0, y: -6, scale: 0.97 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.22,
+          ease: EASE.smooth,
+        },
+      );
+    },
+    { dependencies: [open] },
+  );
 
   // Close on outside click
   useEffect(() => {
@@ -112,6 +160,7 @@ export default function NotificationBell({
       {/* Bell trigger */}
       <button
         type="button"
+        ref={bellRef}
         onClick={handleOpen}
         aria-label="Notifications"
         className="relative flex h-9 w-9 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 transition-colors cursor-pointer"
@@ -126,7 +175,7 @@ export default function NotificationBell({
 
       {/* Dropdown panel */}
       {open && (
-        <div className="fixed inset-x-3 top-20 z-50 rounded-xl border border-zinc-200 bg-white shadow-xl animate-in fade-in zoom-in-95 sm:absolute sm:inset-x-auto sm:right-0 sm:top-11 sm:w-80">
+        <div ref={dropdownRef} className="fixed inset-x-3 top-20 z-50 rounded-xl border border-zinc-200 bg-white shadow-xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-11 sm:w-80">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
             <div className="flex items-center gap-2">

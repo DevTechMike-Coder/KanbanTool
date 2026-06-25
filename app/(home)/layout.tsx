@@ -1,5 +1,6 @@
 import Sidebar from "@/components/Sidebar";
 import SidebarMain from "@/components/SidebarMain";
+import PageTransition from "@/components/animations/PageTransition";
 import type { ReactNode } from "react";
 import { getSessionUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
@@ -35,7 +36,9 @@ export default async function HomeLayout({ children }: HomeLayoutProps) {
         initialProjects={initialProjects}
         userTeams={userTeams.map((t) => ({ id: t.id, name: t.name }))}
       />
-      <SidebarMain>{children}</SidebarMain>
+      <SidebarMain>
+        <PageTransition>{children}</PageTransition>
+      </SidebarMain>
     </div>
   );
 }

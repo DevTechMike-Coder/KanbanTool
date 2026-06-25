@@ -1,9 +1,11 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { AlertTriangle, Calendar, MessageSquare, Paperclip } from "lucide-react";
 import { type Task, getLabelColor } from "@/lib/types/kanban";
+import { gsap, EASE, prefersReducedMotion } from "@/lib/gsap";
 
 export default function TaskCard({
   task,
@@ -16,6 +18,7 @@ export default function TaskCard({
     useDraggable({ id: task.id, data: { column: task.column } });
 
   const style = { transform: CSS.Translate.toString(transform) };
+  const innerRef = useRef<HTMLDivElement>(null);
 
   const displayName =
     task.assignee?.name ||
@@ -45,100 +48,140 @@ export default function TaskCard({
     task.dependencies.length > 0 &&
     task.dependencies.some((dep) => dep.column !== "completed");
 
+  const handleEnter = () => {
+    if (isDragging || prefersReducedMotion() || !innerRef.current) return;
+    gsap.to(innerRef.current, {
+      y: -3,
+      scale: 1.012,
+      boxShadow: "0 8px 20px -6px rgba(0,0,0,0.12)",
+      duration: 0.2,
+      ease: EASE.smooth,
+    });
+  };
+  const handleLeave = () => {
+    if (isDragging || prefersReducedMotion() || !innerRef.current) return;
+    gsap.to(innerRef.current, {
+      y: 0,
+      scale: 1,
+      boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+      duration: 0.2,
+      ease: EASE.smooth,
+    });
+  };
+
+  useEffect(() => {
+    if (isDragging && innerRef.current) {
+      gsap.killTweensOf(innerRef.current);
+      gsap.set(innerRef.current, {
+        y: 0,
+        scale: 1,
+        boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+      });
+    }
+  }, [isDragging]);
+
   return (
     <article
       ref={setNodeRef}
       style={style}
+      data-task-card
       onClick={() => { if (!isDragging) onClick(); }}
-      className={`group rounded-lg border bg-white p-4 shadow-sm transition-all ${
-        isBlocked
-          ? "border-l-3 border-l-red-500 border-zinc-200 hover:border-zinc-300"
-          : "border-zinc-200 hover:border-zinc-350"
-      } ${isDragging ? "z-10 cursor-grabbing opacity-80 shadow-lg" : "cursor-pointer"}`}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      className={`group select-none ${isDragging ? "z-10 cursor-grabbing opacity-80" : "cursor-pointer"}`}
       {...listeners}
       {...attributes}
     >
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5">
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-            {task.id}
-          </span>
-          {isBlocked && (
-            <span className="inline-flex items-center gap-0.5 rounded-sm bg-red-50 border border-red-100 px-1 py-0.5 text-[8px] font-bold uppercase tracking-wider text-red-650">
-              <AlertTriangle className="h-2.5 w-2.5" />
-              Blocked
+      <div
+        ref={innerRef}
+        className={`w-full rounded-lg border bg-white p-4 shadow-sm transition-colors ${
+          isBlocked
+            ? "border-l-3 border-l-red-500 border-zinc-200 hover:border-zinc-300"
+            : "border-zinc-200 hover:border-zinc-350"
+        } ${isDragging ? "shadow-lg" : ""}`}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+              {task.id}
             </span>
-          )}
-        </div>
-        <span className={`rounded-md border px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider ${priorityMeta.badgeClass}`}>
-          {priorityMeta.label}
-        </span>
-      </div>
-
-      <h3 className="mb-2 text-sm font-medium leading-snug text-zinc-800 group-hover:text-zinc-950">
-        {task.title}
-      </h3>
-
-      {task.labels && task.labels.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-3">
-          {task.labels.map((label) => {
-            const c = getLabelColor(label);
-            return (
-              <span
-                key={label}
-                className={`inline-block rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${c.bg} ${c.text} ${c.border}`}
-              >
-                {label}
+            {isBlocked && (
+              <span className="inline-flex items-center gap-0.5 rounded-sm bg-red-50 border border-red-100 px-1 py-0.5 text-[8px] font-bold uppercase tracking-wider text-red-650">
+                <AlertTriangle className="h-2.5 w-2.5" />
+                Blocked
               </span>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="flex items-center justify-between border-t border-zinc-50 pt-2 text-zinc-450">
-        <div className="flex items-center gap-2.5 text-[10px] font-medium text-zinc-500">
-          {task.comments > 0 && (
-            <div className="flex items-center gap-1 shrink-0">
-              <MessageSquare aria-hidden="true" className="h-3.5 w-3.5 text-zinc-400" />
-              <span className="font-mono">{task.comments}</span>
-            </div>
-          )}
-          {task.files > 0 && (
-            <div className="flex items-center gap-1 shrink-0">
-              <Paperclip aria-hidden="true" className="h-3.5 w-3.5 text-zinc-400" />
-              <span className="font-mono">{task.files}</span>
-            </div>
-          )}
-          {task.dueDate && (
-            <div className="flex items-center gap-1 text-zinc-500 shrink-0">
-              <Calendar aria-hidden="true" className="h-3.5 w-3.5 text-zinc-400" />
-              <span>
-                {new Date(task.dueDate).toLocaleDateString([], {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </span>
-            </div>
-          )}
+            )}
+          </div>
+          <span className={`rounded-md border px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider ${priorityMeta.badgeClass}`}>
+            {priorityMeta.label}
+          </span>
         </div>
 
-        {task.assignee ? (
-          task.assignee.avatarUrl ? (
-            <img
-              src={task.assignee.avatarUrl}
-              alt={displayName}
-              className="h-5 w-5 rounded-full object-cover border border-white shadow-xs shrink-0"
-            />
-          ) : (
-            <div className="flex h-5 w-5 items-center justify-center rounded-full border border-white bg-zinc-950 text-[8px] font-bold text-white shadow-xs shrink-0">
-              {initials}
-            </div>
-          )
-        ) : (
-          <div className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-zinc-200 bg-zinc-50 text-[8px] font-medium text-zinc-400 shrink-0">
-            --
+        <h3 className="mb-2 text-sm font-medium leading-snug text-zinc-800 group-hover:text-zinc-950">
+          {task.title}
+        </h3>
+
+        {task.labels && task.labels.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {task.labels.map((label) => {
+              const c = getLabelColor(label);
+              return (
+                <span
+                  key={label}
+                  className={`inline-block rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${c.bg} ${c.text} ${c.border}`}
+                >
+                  {label}
+                </span>
+              );
+            })}
           </div>
         )}
+
+        <div className="flex items-center justify-between border-t border-zinc-50 pt-2 text-zinc-450">
+          <div className="flex items-center gap-2.5 text-[10px] font-medium text-zinc-500">
+            {task.comments > 0 && (
+              <div className="flex items-center gap-1 shrink-0">
+                <MessageSquare aria-hidden="true" className="h-3.5 w-3.5 text-zinc-400" />
+                <span className="font-mono">{task.comments}</span>
+              </div>
+            )}
+            {task.files > 0 && (
+              <div className="flex items-center gap-1 shrink-0">
+                <Paperclip aria-hidden="true" className="h-3.5 w-3.5 text-zinc-400" />
+                <span className="font-mono">{task.files}</span>
+              </div>
+            )}
+            {task.dueDate && (
+              <div className="flex items-center gap-1 text-zinc-500 shrink-0">
+                <Calendar aria-hidden="true" className="h-3.5 w-3.5 text-zinc-400" />
+                <span>
+                  {new Date(task.dueDate).toLocaleDateString([], {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {task.assignee ? (
+            task.assignee.avatarUrl ? (
+              <img
+                src={task.assignee.avatarUrl}
+                alt={displayName}
+                className="h-5 w-5 rounded-full object-cover border border-white shadow-xs shrink-0"
+              />
+            ) : (
+              <div className="flex h-5 w-5 items-center justify-center rounded-full border border-white bg-zinc-950 text-[8px] font-bold text-white shadow-xs shrink-0">
+                {initials}
+              </div>
+            )
+          ) : (
+            <div className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-zinc-200 bg-zinc-50 text-[8px] font-medium text-zinc-400 shrink-0">
+              --
+            </div>
+          )}
+        </div>
       </div>
     </article>
   );

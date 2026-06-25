@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useSidebar } from "@/lib/contexts/SidebarContext";
 import { useAuthPrompt } from "@/lib/contexts/AuthPromptContext";
+import { gsap, useGSAP, EASE, prefersReducedMotion, showWithoutMotion } from "@/lib/gsap";
 
 const primaryNavItems: Array<{
   icon: LucideIcon;
@@ -69,6 +70,8 @@ export default function Sidebar({
   const router = useRouter();
   const { isCollapsed, setIsCollapsed } = useSidebar();
   const { showAuthPrompt } = useAuthPrompt();
+  const navRef = useRef<HTMLElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // Navigation & UI States
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -105,6 +108,57 @@ export default function Sidebar({
       .toUpperCase() || "ME";
 
   // Sync projects state if initialProjects changes (handled in render synchronization)
+
+  // Stagger the primary nav links in once on mount.
+  useGSAP(
+    () => {
+      if (!navRef.current) return;
+      const navItems = navRef.current.children;
+
+      if (prefersReducedMotion()) {
+        showWithoutMotion(navItems);
+        return;
+      }
+
+      gsap.fromTo(
+        navItems,
+        { autoAlpha: 0, x: -8 },
+        {
+          autoAlpha: 1,
+          x: 0,
+          duration: 0.4,
+          ease: EASE.smooth,
+          stagger: 0.06,
+          clearProps: "transform,opacity,visibility",
+        },
+      );
+    },
+    { scope: navRef },
+  );
+
+  // Pop the "create project" modal in whenever it opens.
+  useGSAP(
+    () => {
+      if (!isProjectModalOpen || !modalRef.current) return;
+      if (prefersReducedMotion()) {
+        showWithoutMotion(modalRef.current);
+        return;
+      }
+
+      gsap.fromTo(
+        modalRef.current,
+        { autoAlpha: 0, y: 10, scale: 0.96 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.3,
+          ease: EASE.bounce,
+        },
+      );
+    },
+    { dependencies: [isProjectModalOpen] },
+  );
 
   // Toggle Collapse State Handler
   const toggleCollapse = () => {
@@ -232,7 +286,7 @@ export default function Sidebar({
           </div>
 
           {/* Navigation Systems Area */}
-          <nav aria-label="Main Navigation" className="flex flex-col gap-1">
+          <nav ref={navRef} aria-label="Main Navigation" className="flex flex-col gap-1">
             {primaryNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -644,7 +698,7 @@ export default function Sidebar({
           />
 
           {/* Modal Container */}
-          <div className="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl transition-all duration-300 animate-in fade-in zoom-in-95">
+          <div className="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl" ref={modalRef}>
             <button
               type="button"
               onClick={() => setIsProjectModalOpen(false)}
