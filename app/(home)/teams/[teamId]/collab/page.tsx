@@ -11,14 +11,34 @@ interface PageProps {
 export default async function TeamCollabPage({ params }: PageProps) {
   const { teamId } = await params;
 
-  // 1. Fetch team details dynamically from PostgreSQL
-  const team = await getTeamDetails(teamId);
+  // 1-4. None of these four reads depend on each other's *results* — only on
+  // teamId / the session cookie — so run them concurrently instead of as a
+  // 4-step waterfall. This meaningfully cuts time-to-content on every visit.
+  //
+  // getTeamDetails/getMessages internally call verifyTeamAccess(teamId), which
+  // throws for an unauthenticated session, a non-member, AND a non-existent
+  // team alike (it can't distinguish "no access" from "doesn't exist"). Catch
+  // that here and turn it into a clean redirect instead of an unhandled error.
+  let team!: Awaited<ReturnType<typeof getTeamDetails>>;
+  let userId!: Awaited<ReturnType<typeof getSessionUserId>>;
+  let dbUserTeams!: Awaited<ReturnType<typeof getUserTeams>>;
+  let initialMessages!: Awaited<ReturnType<typeof getMessages>>;
+  try {
+    [team, userId, dbUserTeams, initialMessages] = await Promise.all([
+      getTeamDetails(teamId),
+      getSessionUserId(),
+      getUserTeams(),
+      getMessages(teamId),
+    ]);
+  } catch {
+    const sessionUserId = await getSessionUserId();
+    redirect(sessionUserId ? `/invite/${teamId}` : "/signIn");
+  }
+
   if (!team) {
     notFound();
   }
 
-  // 2. Fetch current logged-in user profile
-  const userId = await getSessionUserId();
   if (!userId) {
     redirect("/signIn");
   }
@@ -29,17 +49,12 @@ export default async function TeamCollabPage({ params }: PageProps) {
     redirect(`/invite/${teamId}`);
   }
 
-  // 3. Fetch all workspaces the user is a member of (to populate the TeamSwitcher dropdown)
-  const dbUserTeams = await getUserTeams();
   const userTeams = dbUserTeams.map((t) => ({
     id: t.id,
     name: t.name,
   }));
 
-  // 4. Fetch live chat history for this workspace
-  const initialMessages = await getMessages(teamId);
-
-  // 5. Fetch tasks related to this team's projects or assigned to team members
+  // 5. Depends on team.members resolved above, so this one stays sequential.
   const dbTeamTasks = await prisma.task.findMany({
     where: {
       OR: [

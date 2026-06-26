@@ -351,7 +351,7 @@ export default function TaskDetailModal({
         className="fixed inset-0 bg-zinc-950/40 backdrop-blur-xs transition-opacity duration-300"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-3xl rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl z-10 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-3xl rounded-2xl border border-zinc-200 bg-white p-4 sm:p-6 shadow-2xl z-10 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-150 pb-3 mb-4">
           <span className="font-mono text-xs font-bold uppercase tracking-wider text-zinc-400">

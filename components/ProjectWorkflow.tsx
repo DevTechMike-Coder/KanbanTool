@@ -558,7 +558,7 @@ export function ProjectWorkflow({
             className="fixed inset-0 bg-zinc-950/40 backdrop-blur-xs"
             onClick={() => setIsModalOpen(false)}
           />
-          <div className="relative w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}

@@ -54,7 +54,7 @@ export default function TaskCreateModal({
         className="fixed inset-0 bg-zinc-950/40 backdrop-blur-xs transition-opacity duration-300"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-xl z-10 transition-all">
+      <div className="relative w-full max-w-md rounded-xl border border-zinc-200 bg-white p-4 sm:p-6 shadow-xl z-10 transition-all">
         <h3 className="text-lg font-bold text-zinc-950 mb-1">Add New Task</h3>
         <p className="text-xs text-zinc-500 mb-4">
           Adding task to column:{" "}

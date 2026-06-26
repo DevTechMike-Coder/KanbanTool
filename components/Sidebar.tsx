@@ -33,13 +33,14 @@ import { useSidebar } from "@/lib/contexts/SidebarContext";
 import { useAuthPrompt } from "@/lib/contexts/AuthPromptContext";
 import { gsap, useGSAP, EASE, prefersReducedMotion, showWithoutMotion } from "@/lib/gsap";
 
-const primaryNavItems: Array<{
+const baseNavItems: Array<{
   icon: LucideIcon;
   label: string;
   href: string;
+  isTeamsLink?: boolean;
 }> = [
   { icon: Home, label: "Overview", href: "/home" },
-  { icon: Users, label: "Team Collaboration", href: "/teams" },
+  { icon: Users, label: "Team Collaboration", href: "/teams", isTeamsLink: true },
 ];
 
 interface DbProject {
@@ -69,6 +70,20 @@ export default function Sidebar({
   const pathname = usePathname();
   const router = useRouter();
   const { isCollapsed, setIsCollapsed } = useSidebar();
+
+  // When the user already belongs to a workspace, link straight to it instead
+  // of "/teams" — that page server-redirects to teams[0] when teams.length > 0,
+  // which inserts a blank render gap between the two navigations. Deep-linking
+  // skips that hop entirely. "/teams" itself is kept as a safe fallback for
+  // users with no workspace yet (renders the create-workspace flow) and as a
+  // resilient target for direct URL visits/bookmarks.
+  const navItems = baseNavItems.map((item) =>
+    item.isTeamsLink && userTeams.length > 0
+      ? { ...item, href: `/teams/${userTeams[0].id}/collab` }
+      : item
+  );
+  const isNavItemActive = (item: (typeof navItems)[number]) =>
+    item.isTeamsLink ? pathname.startsWith("/teams") : pathname === item.href;
   const { showAuthPrompt } = useAuthPrompt();
   const navRef = useRef<HTMLElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -287,13 +302,13 @@ export default function Sidebar({
 
           {/* Navigation Systems Area */}
           <nav ref={navRef} aria-label="Main Navigation" className="flex flex-col gap-1">
-            {primaryNavItems.map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href;
+              const isActive = isNavItemActive(item);
 
               return (
                 <Tooltip
-                  key={item.href}
+                  key={item.label}
                   delayDuration={isCollapsed ? 200 : 1000}
                 >
                   <TooltipTrigger asChild>
@@ -554,13 +569,13 @@ export default function Sidebar({
                 aria-label="Mobile Main Navigation"
                 className="flex flex-col gap-1"
               >
-                {primaryNavItems.map((item) => {
+                {navItems.map((item) => {
                   const Icon = item.icon;
-                  const isActive = pathname === item.href;
+                  const isActive = isNavItemActive(item);
 
                   return (
                     <Link
-                      key={item.href}
+                      key={item.label}
                       href={(!user && item.href !== "/home") ? "#" : item.href}
                       onClick={(e) => {
                         setIsMobileOpen(false);
@@ -698,7 +713,7 @@ export default function Sidebar({
           />
 
           {/* Modal Container */}
-          <div className="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl" ref={modalRef}>
+          <div className="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-4 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto" ref={modalRef}>
             <button
               type="button"
               onClick={() => setIsProjectModalOpen(false)}

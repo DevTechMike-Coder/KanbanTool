@@ -11,12 +11,31 @@ interface PageProps {
 export default async function TeamMembersPage({ params }: PageProps) {
   const { teamId } = await params;
 
-  const team = await getTeamDetails(teamId);
+  // getTeamDetails throws (via verifyTeamAccess) for an unauthenticated
+  // session, a non-member, or a non-existent team alike. The prisma task
+  // lookup below only needs teamId, not the result of getTeamDetails, so it
+  // runs concurrently rather than waiting on it.
+  let team!: Awaited<ReturnType<typeof getTeamDetails>>;
+  let userId!: Awaited<ReturnType<typeof getSessionUserId>>;
+  let teamTasks!: Array<{ assigneeId: string | null }>;
+  try {
+    [team, userId, teamTasks] = await Promise.all([
+      getTeamDetails(teamId),
+      getSessionUserId(),
+      prisma.task.findMany({
+        where: { project: { teamId } },
+        select: { assigneeId: true },
+      }),
+    ]);
+  } catch {
+    const sessionUserId = await getSessionUserId();
+    redirect(sessionUserId ? `/invite/${teamId}` : "/signIn");
+  }
+
   if (!team) {
     notFound();
   }
 
-  const userId = await getSessionUserId();
   if (!userId) {
     redirect("/signIn");
   }
@@ -25,16 +44,6 @@ export default async function TeamMembersPage({ params }: PageProps) {
   if (!currentUser) {
     redirect(`/invite/${teamId}`);
   }
-
-  // Fetch tasks belonging to projects in this team/workspace to calculate task counts
-  const teamTasks = await prisma.task.findMany({
-    where: {
-      project: { teamId },
-    },
-    select: {
-      assigneeId: true,
-    },
-  });
 
   const taskCounts: Record<string, number> = {};
   for (const t of teamTasks) {

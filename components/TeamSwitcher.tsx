@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronDown, Users, Link2, Check } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, Users, Link2, Check, Loader2 } from "lucide-react";
+import { useState, useTransition } from "react";
 
 interface TeamSwitcherProps {
   currentTeamId: string;
@@ -13,10 +13,19 @@ export default function TeamSwitcher({ currentTeamId, teams }: TeamSwitcherProps
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [switchingTo, setSwitchingTo] = useState<string | null>(null);
 
   const handleTeamSwitch = (teamId: string) => {
-    router.push(`/teams/${teamId}/collab`);
+    if (teamId === currentTeamId) {
+      setIsOpen(false);
+      return;
+    }
+    setSwitchingTo(teamId);
     setIsOpen(false);
+    startTransition(() => {
+      router.push(`/teams/${teamId}/collab`);
+    });
   };
 
   const handleCopyInviteLink = async () => {
@@ -34,14 +43,19 @@ export default function TeamSwitcher({ currentTeamId, teams }: TeamSwitcherProps
 
   return (
     <div className="relative inline-block text-left">
-      <button 
+      <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-zinc-200 bg-white hover:bg-zinc-55 text-zinc-800 transition-colors shadow-xs cursor-pointer focus:outline-hidden"
+        disabled={isPending}
+        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-zinc-200 bg-white hover:bg-zinc-55 text-zinc-800 transition-colors shadow-xs cursor-pointer focus:outline-hidden disabled:cursor-wait disabled:opacity-70"
       >
-        <Users className="w-3.5 h-3.5 text-zinc-500" />
-        <span>{activeTeamName}</span>
-        <ChevronDown className="w-3 h-3 text-zinc-400" />
+        {isPending ? (
+          <Loader2 className="w-3.5 h-3.5 text-zinc-400 animate-spin" />
+        ) : (
+          <Users className="w-3.5 h-3.5 text-zinc-500" />
+        )}
+        <span>{isPending ? "Switching…" : activeTeamName}</span>
+        {!isPending && <ChevronDown className="w-3 h-3 text-zinc-400" />}
       </button>
 
       {isOpen && (
@@ -60,11 +74,16 @@ export default function TeamSwitcher({ currentTeamId, teams }: TeamSwitcherProps
                 key={team.id}
                 type="button"
                 onClick={() => handleTeamSwitch(team.id)}
-                className={`w-full text-left px-3 py-2 text-xs transition-colors cursor-pointer hover:bg-zinc-50 flex items-center gap-2 ${
+                disabled={isPending}
+                className={`w-full text-left px-3 py-2 text-xs transition-colors cursor-pointer hover:bg-zinc-50 flex items-center gap-2 disabled:cursor-wait ${
                   currentTeamId === team.id ? "font-semibold text-zinc-950 bg-zinc-50" : "text-zinc-600 hover:text-zinc-950"
                 }`}
               >
-                <div className={`w-1.5 h-1.5 rounded-full ${currentTeamId === team.id ? "bg-zinc-950" : "bg-transparent"}`} />
+                {isPending && switchingTo === team.id ? (
+                  <Loader2 className="w-3 h-3 animate-spin text-zinc-400" />
+                ) : (
+                  <div className={`w-1.5 h-1.5 rounded-full ${currentTeamId === team.id ? "bg-zinc-950" : "bg-transparent"}`} />
+                )}
                 {team.name}
               </button>
             ))}
